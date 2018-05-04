@@ -23,7 +23,7 @@ if (!isset($_SESSION['access_token']) || $_SESSION['access_token'] == ""){
 		getAccess_Token();	
 	}
 }else{
-	header('Location: ' . MAIN_URI);
+	header('Location: ' . "./main.php");
 	exit;
 }
 
@@ -50,7 +50,7 @@ function getAccessID(){
 
 		saveDatetoDB();
 		
-		header('Location: ' . MAIN_URI);	
+		header('Location: ./main.php');	
 		exit;
 	}
 }
@@ -101,7 +101,7 @@ function getAccess_Token(){
 	$_SESSION['id_token'] = $result->id_token;
 	$_SESSION['signature'] = $result->signature;
 
-	header('Location: ' . MAIN_URI);
+	header('Location: ./main.php');
 	exit;
 }
 
