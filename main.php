@@ -8,7 +8,7 @@ $_SESSION['refreshRate'] = getRefreshRate();
 
 if(!isset($_SESSION['access_token']) || $_SESSION['access_token'] == "")
 {
-	header("Location: " . ORIGIN_URI);
+	header("Location: ./index.php");
 	exit;
 }
 

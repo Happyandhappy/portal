@@ -18,7 +18,7 @@ if (isset($_GET['ownerId'])){
 
 function logout(){
 	session_destroy();
-	header("Location: " . ORIGIN_URI);
+	header("Location: ../index.php");
 	exit;
 }
 

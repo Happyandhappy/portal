@@ -4,7 +4,7 @@ require_once('./config/database.php');
 require_once('./config/config.php');
 if(!isset($_SESSION['access_token']) || $_SESSION['access_token'] == "")
 {
-	header("Location: " . ORIGIN_URI);exit;
+	header("Location: ./index.php");exit;
 }
 ?>
 
