@@ -5,15 +5,32 @@
 		$password : password
 		$dbname   : database name
 	*/
-	$host = "localhost";
-	$username = "root";
-	$password = "";
-	$dbname = "saleforce_portal";
+	function getConnection(){
+		$host = "localhost";
+		$username = "root";
+		$password = "";
+		$dbname = "saleforce_portal";
 
-	$con = new mysqli($host, $username, $password);
+		$con = new mysqli($host, $username, $password,$dbname);
+		// Check connection
+		if ($con->connect_error) {
+		    die("Connection failed: " . $con->connect_error);
+		} 
 
-	// Check connection
-	if ($con->connect_error) {
-	    die("Connection failed: " . $con->connect_error);
-	} 
+		return $con;
+	}
+
+	function getRefreshRate(){
+		$con = getConnection();
+		$query = "SELECT refreshRate from settings where username='" . $_SESSION['username']."'";
+
+		$result = $con->query($query);
+		if ($result->num_rows > 0){
+			while ($row = $result->fetch_assoc()) {
+				return (int)$row['refreshRate'];
+			}
+		}
+		return 5;
+	}
+
 ?>

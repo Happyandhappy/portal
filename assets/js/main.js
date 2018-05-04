@@ -1,36 +1,43 @@
 	var listData = null;
 	var current_view = null;
-	var LOGOUT_URI = "http://localhost/portal/app/api.php?logout=";
-	var AJAX_URI = "http://localhost/portal/app/api.php?get=";
-
-	var urls = {
-		Campaigns 	: "/services/data/v42.0/sobjects/Campaign",
-		Accounts  	: "/services/data/v42.0/sobjects/Account",
-		Cases     	: "/services/data/v42.0/sobjects/Case",
-		Contacts  	: "/services/data/v42.0/sobjects/Contact",
-		Leads     	: "/services/data/v42.0/sobjects/Lead/listviews",
-		Opportunities : "/services/data/v42.0/sobjects/Opportunity",
-		Orders    	: "/services/data/v42.0/sobjects/Order",
-		Products  	: "/services/data/v42.0/sobjects/Product2",
-		Reports   	: "/services/data/v42.0/sobjects/Report",
-		Files     	: "/services/data/v42.0/sobjects/ContentAsset",
-		Chatter  	: "/services/data/v42.0/sobjects/ChatterActivity",
-		listEmail  	: "/services/data/v42.0/sobjects/ListEmail"
-	}
-
+	
 	$(document).ready(function(){
 			var refreshRate = $("#refreshRate").val();
-			request("/services/data/v42.0/sobjects/Lead/listviews", 1);
+		    // Show Spinner after loading
+			$(".loader").removeClass("hidden");
+			$("#views").prop("disabled", true);
+
+			$.ajax({
+				url     : "./app/api.php?get=/services/data/v42.0/sobjects/Lead/listviews",
+				success : function(res){
+					  	 // Hide Spinner after loading
+		     			 $(".loader").addClass("hidden");
+		     			 $("#views").prop("disabled", false);
+		     		     listData = JSON.parse(res);
+		     			 
+
+					     // check if session expired or not
+					     if ( typeof listData[0]!== "undefined" && listData[0]){
+					     	if (listData[0]['errorCode'] == "INVALID_SESSION_ID") window.location.replace("./app/api.php?logout="); 				     	
+					     }
+					     console.log(refreshRate*60*1000);
+					     showSelect(listData);
+					     current_view = $("#views").val();
+					     request(current_view,2);
+					     setInterval( function(){request(current_view,2);}, refreshRate*60*1000);
+				},
+				error   : function(err){}
+			});
 
 			/* Change of view selector */
 			$("#views").change(function(){
-				// console.log($(this).val());
 				current_view = $(this).val();
 				$("#table").html('');
-				setInterval(request(current_view,2,refreshRate*60*1000));
+				request(current_view,2);
+				setInterval( function(){request(current_view,2);},refreshRate*60*1000);
 			});
 	});
-
+	
 	function request(url, view){
 	    // Show Spinner after loading
 		$(".loader").removeClass("hidden");
@@ -65,8 +72,10 @@
 			$('#views').append("<option value = '" + data['listviews'][i]['resultsUrl'] + "'>" + data['listviews'][i]['label'] + "</option>")
 		}
 	}
+
 	function showTable(data){
 		var i;
+		$("#table").html('');
 	    $("#table").append("<thead><tr> <th>_No</th> <th>NAME</th> <th>COMPANY</th> <th>STATE/PROVINCE</th> <th>EMAIL</th>  <th>LEAD STATUS</th> <th>CREATED DATE</th> <th>OWNER ALIAS</th> <th>UNREAD BY OWNER</th> </tr></thead>");
 		
 		var str = "<tbody>";		

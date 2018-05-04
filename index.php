@@ -46,14 +46,29 @@ function getAccessID(){
 		$_SESSION['access_token'] = $response->access_token;
 		$_SESSION['access_token'] = $response->access_token;
 		$_SESSION['instance_url'] = $response->instance_url;
-		$_SESSION['id_token'] = $response->id_token;
 		$_SESSION['signature'] = $response->signature;	
 
-		header("Location :" . MAIN_URI);	
+		saveDatetoDB();
+		
+		header('Location: ' . MAIN_URI);	
 		exit;
 	}
 }
 
+function saveDatetoDB(){
+	$con = getConnection();
+
+	$query = "select * from users where username='". $_SESSION['username']."'";
+	echo $query;
+	$result = $con->query($query);
+	if ($result->num_rows==0){
+		$query = "INSERT INTO users (username, password, secret_token) VALUES ('". $_SESSION['username']."','". $_SESSION['password'] . "','" . $_SESSION['secret_token']. "')";
+		$result = $con->query($query);
+
+		$query = "INSERT INTO settings (username,refreshRate) VALUES ('".$_SESSION['username']."', 5)";
+		$res = $con->query($query);
+	}
+}
 
 function getCode(){
 	$auth_url =LOGIN_URI."/services/oauth2/authorize?response_type=code&client_id=".CLIENT_ID.

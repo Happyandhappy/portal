@@ -7,10 +7,6 @@ if(!isset($_SESSION['access_token']) || $_SESSION['access_token'] == "")
 {
 	header("Location: " . ORIGIN_URI);exit;
 }
-
-if (count($_POST)>0){
-	var_dump($_POST);exit;
-}
 ?>
 
 <!DOCTYPE html>
@@ -56,26 +52,26 @@ if (count($_POST)>0){
 				<input type="hidden" name="ownerId" id="ownerId" value="<?php if(isset($_SESSION['ownerId'])) echo $_SESSION['ownerId'] ;?>">
 				<div class="form-group">
 					<label class="warning">Campaign Name</label>
-					<input type="text" name="campaign" id="campaign" class="form-control input">
+					<input type="text" name="campaign" id="campaign" class="form-control input" required>
 				</div>
 				<div class="form-group">
 					<label>Sub Campaign Name</label>
-					<input type="text" name="subcompaign" id="subcompaign" class="form-control input">
+					<input type="text" name="subcampaign" id="subcompaign" class="form-control input">
 				</div>
 				<div class="form-group">
 					<label class="warning">SecurityCode</label>
-					<input type="text" name="securityCode" id="securityCode" class="form-control input">
+					<input type="text" name="securityCode" id="securityCode" class="form-control input" required>
 				</div>
 				<div class="form-group">
 					<label class="warning">GroupId</label>
-					<input type="text" name="gruopId" id="gruopId" class="form-control input">
+					<input type="text" name="groupId" id="gruopId" class="form-control input" required>
 				</div>	
 				<div class="form-group">
 					<label class="warning">Refresh Rate (min)</label>
-					<input type="number" name="refreshRate" id="refreshRate" class="form-control input" value="5">
+					<input type="number" name="refreshRate" id="refreshRate" class="form-control input" value="5" required>
 				</div>
 				<div class="form-group">
-					<button name="submit" class="form-control">Submit</button>
+					<input type="submit" name="submit" class="form-control" value="Submit">
 					<div class="loader hidden"></div>
 				</div>
 			</form>

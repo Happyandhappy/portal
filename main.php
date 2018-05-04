@@ -3,7 +3,9 @@ session_start();
 define('__ROOT__', dirname(dirname(__FILE__))); 
 require_once(__ROOT__.'/portal/config/database.php'); 
 require_once(__ROOT__.'/portal/config/config.php');
-if (!isset($_SESSION['refreshRate']))  $_SESSION['refreshRate'] = 5;
+
+// if (!isset($_SESSION['refreshRate']))  $_SESSION['refreshRate'] = 5;
+$_SESSION['refreshRate'] = getRefreshRate();
 
 if(!isset($_SESSION['access_token']) || $_SESSION['access_token'] == "")
 {
@@ -11,7 +13,47 @@ if(!isset($_SESSION['access_token']) || $_SESSION['access_token'] == "")
 	exit;
 }
 
+if ( count($_POST) > 0 ) {
+	$campaign 		= $_POST['campaign'];
+	$subcampaign 	= $_POST['subcampaign'];
+	$securityCode 	= $_POST['securityCode'];
+	$groupId		= $_POST['groupId'];
+	$refreshRate	= $_POST['refreshRate'];
+	
+	if (isset($_POST['firstName']))  $firstName	= $_POST['firstName'];
+	else $firstName	= null;
 
+	if (isset($_POST['lastName']))   $lastName = $_POST['lastName'];
+	else $lastName	= null;
+
+	if (isset($_POST['address']))    $address = $_POST['address'];
+	else $address	= null;
+
+	if (isset($_POST['city']))       $city = $_POST['city'];
+	else $city		= null;
+
+	if (isset($_POST['state']))      $state	= $_POST['state'];
+	else $state		= null;
+
+	if (isset($_POST['zipcode']))    $zipcode = $_POST['zipcode'];
+	else $zipcode	= null;
+
+	if (isset($_POST['notes']))      $notes	= $_POST['notes'];
+	else $notes		= null;
+	
+	if (isset($_POST['mobile']))     $mobile = $_POST['mobile'];
+	else $mobile	= null;
+
+	if (isset($_POST['phone']))      $phone	= $_POST['phone'];
+	else $phone		= null;
+
+	$con = getConnection();
+	$query = "UPDATE settings SET campaign = '".$campaign."', subcampaign='". $subcampaign . "' , securityCode='" . $securityCode. "', groupId='" . $groupId . "', refreshRate =" . $refreshRate . ", firstName = '" . $firstName . "' , lastName = '" . $lastName . "' , address = '" .  $address . "' , city = '" . $city . "' , state = '" . $state . "' , zipcode = '" . $zipcode . "' , notes = '" . $notes . "', mobile = '" . $mobile . "', phone ='" . $phone . "' where username = '" . $_SESSION['username']."'";
+	$res = $con->query($query);
+
+// update or inject curl requests here///////////////////////////////////////////////////////////////
+		
+}
 
 ?>
 
@@ -65,7 +107,6 @@ if(!isset($_SESSION['access_token']) || $_SESSION['access_token'] == "")
 				<div class="form-group">
 					<label>Select Views</label>
 	                <select class="selectpicker form-control select" id="views" name="view" required="">
-	                    <option value="" selected="" hidden="">- None -</option>
 	                </select>
 				</div>
 			</form>
