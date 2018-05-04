@@ -1,6 +1,5 @@
 <?php
-session_start();	
-define('__ROOT__', dirname(dirname(__FILE__))); 
+session_start();	 
 require_once('./config/database.php'); 
 require_once('./config/config.php');
 

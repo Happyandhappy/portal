@@ -1,6 +1,5 @@
 <?php 
 session_start();
-define('__ROOT__', dirname(dirname(__FILE__))); 
 require_once('./config/database.php'); 
 require_once('./config/config.php');
 $_SESSION['error'] = "";
