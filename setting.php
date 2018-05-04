@@ -1,8 +1,8 @@
 <?php
 session_start();	
 define('__ROOT__', dirname(dirname(__FILE__))); 
-require_once(__ROOT__.'/portal/config/database.php'); 
-require_once(__ROOT__.'/portal/config/config.php');
+require_once('./portal/config/database.php'); 
+require_once('./portal/config/config.php');
 if(!isset($_SESSION['access_token']) || $_SESSION['access_token'] == "")
 {
 	header("Location: " . ORIGIN_URI);exit;

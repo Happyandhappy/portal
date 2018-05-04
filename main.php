@@ -1,8 +1,8 @@
 <?php
 session_start();	
 define('__ROOT__', dirname(dirname(__FILE__))); 
-require_once(__ROOT__.'/portal/config/database.php'); 
-require_once(__ROOT__.'/portal/config/config.php');
+require_once('./config/database.php'); 
+require_once('./config/config.php');
 
 // if (!isset($_SESSION['refreshRate']))  $_SESSION['refreshRate'] = 5;
 $_SESSION['refreshRate'] = getRefreshRate();

@@ -1,8 +1,8 @@
 <?php 
 session_start();
 define('__ROOT__', dirname(dirname(__FILE__))); 
-require_once(__ROOT__.'/portal/config/database.php'); 
-require_once(__ROOT__.'/portal/config/config.php');
+require_once('./config/database.php'); 
+require_once('./config/config.php');
 $_SESSION['error'] = "";
 if (!isset($_SESSION['access_token']) || $_SESSION['access_token'] == ""){
 
@@ -171,8 +171,3 @@ function getAccess_Token(){
 </body>
 </html>
 
-
-
-
-
-<!-- curl https://login.salesforce.com/services/oauth2/token -d "grant_type=password" -d "client_id=3MVG9sG9Z3Q1Rlbcr_PEobEWR8h3Z38MNKPZuGEsIDooaMtIAIbCBClaNesR9AhvKtuh5bORQQSO7RuoeRScY" -d "client_secret=2678475279682680274" -d "username=info@chasedatacorp.com" -d "password=Dialer123uqlprJZbFTxPWRqjJ7dY7Qco" -->

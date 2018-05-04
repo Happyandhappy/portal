@@ -9,7 +9,7 @@
 		$host = "localhost";
 		$username = "root";
 		$password = "";
-		$dbname = "saleforce_portal";
+		$dbname = "amacklai_salesforce";
 
 		$con = new mysqli($host, $username, $password,$dbname);
 		// Check connection
