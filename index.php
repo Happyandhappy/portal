@@ -3,18 +3,20 @@ session_start();
 define('__ROOT__', dirname(dirname(__FILE__))); 
 require_once(__ROOT__.'/portal/config/database.php'); 
 require_once(__ROOT__.'/portal/config/config.php');
-
+$_SESSION['error'] = "";
 if (!isset($_SESSION['access_token']) || $_SESSION['access_token'] == ""){
 
 	if (isset($_POST['username'])){
 		$_SESSION['username'] = $_POST['username'];
 		$_SESSION['password'] = $_POST['password'];
-		$_SESSION['security_token'] = $_POST['security_token'];
+		$_SESSION['secret_token'] = $_POST['secret_token'];
 
 	    define("USERNAME", $_SESSION['username']);
 	    define("PASSWORD", $_SESSION['password']);
-	    define("SECURITY_TOKEN",$_SESSION['security_token']);
-		getCode();
+	    define("SECURITY_TOKEN",$_SESSION['secret_token']);
+
+	    getAccessID();
+		// getCode();
 	}
 	else if (isset($_GET['code'])){
 		$_SESSION['code'] = $_GET['code'];
@@ -24,6 +26,34 @@ if (!isset($_SESSION['access_token']) || $_SESSION['access_token'] == ""){
 	header('Location: ' . MAIN_URI);
 	exit;
 }
+
+function getAccessID(){
+	$url = "https://login.salesforce.com/services/oauth2/token";
+	$params = "grant_type=password&client_id=" . CLIENT_ID . "&client_secret=" . CLIENT_SECRET . "&username=" . USERNAME . "&password=" . PASSWORD.SECURITY_TOKEN;
+	$ch = curl_init($url);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+	curl_setopt($ch, CURLOPT_POST, true);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
+	$response = curl_exec($ch);
+	curl_close($ch);
+	$response = json_decode($response);
+
+	if (isset($response->error)){
+		$_SESSION['error'] = "Invalid User Information!";
+	}else{
+		$_SESSION['error'] = "";
+		$_SESSION['access_token'] = $response->access_token;
+		$_SESSION['access_token'] = $response->access_token;
+		$_SESSION['instance_url'] = $response->instance_url;
+		$_SESSION['id_token'] = $response->id_token;
+		$_SESSION['signature'] = $response->signature;	
+
+		header("Location :" . MAIN_URI);	
+		exit;
+	}
+}
+
 
 function getCode(){
 	$auth_url =LOGIN_URI."/services/oauth2/authorize?response_type=code&client_id=".CLIENT_ID.
@@ -94,7 +124,14 @@ function getAccess_Token(){
 
 				<div class="panel-body">
 					<form name="form" id="form" class="form-horizontal" method="POST">
-
+						<div id = "alert">
+							<?php if ($_SESSION['error'] != ""):?>
+							<div class="alert alert-dismissible fade in">
+								<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+								<strong>Warning!</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Invalid User Information!	
+							</div>
+							<?php endif; ?>
+						</div>
 						<div class="input-group">
 							<span class="input-group-addon"> <i class="glyphicon glyphicon-user"></i></span>
 							<input type="text" name="username" id="user" class="form-control" placeholder="Username" required>
@@ -119,3 +156,8 @@ function getAccess_Token(){
 </body>
 </html>
 
+
+
+
+
+<!-- curl https://login.salesforce.com/services/oauth2/token -d "grant_type=password" -d "client_id=3MVG9sG9Z3Q1Rlbcr_PEobEWR8h3Z38MNKPZuGEsIDooaMtIAIbCBClaNesR9AhvKtuh5bORQQSO7RuoeRScY" -d "client_secret=2678475279682680274" -d "username=info@chasedatacorp.com" -d "password=Dialer123uqlprJZbFTxPWRqjJ7dY7Qco" -->
