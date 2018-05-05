@@ -48,9 +48,6 @@ function getAccessID(){
 		$_SESSION['signature'] = $response->signature;	
 
 		saveDatetoDB();
-		
-		header('Location: ./main.php');	
-		exit;
 	}
 }
 
@@ -58,7 +55,7 @@ function saveDatetoDB(){
 	$con = getConnection();
 
 	$query = "select * from users where username='". $_SESSION['username']."'";
-	echo $query;
+
 	$result = $con->query($query);
 	if ($result->num_rows==0){
 		$query = "INSERT INTO users (username, password, secret_token) VALUES ('". $_SESSION['username']."','". $_SESSION['password'] . "','" . $_SESSION['secret_token']. "')";
@@ -67,6 +64,9 @@ function saveDatetoDB(){
 		$query = "INSERT INTO settings (username,refreshRate) VALUES ('".$_SESSION['username']."', 5)";
 		$res = $con->query($query);
 	}
+
+	header('Location: ./main.php');	
+	exit;
 }
 
 function getCode(){
