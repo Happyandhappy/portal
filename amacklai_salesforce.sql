@@ -37,8 +37,9 @@ CREATE TABLE `settings` (
   `notes` varchar(255) DEFAULT NULL,
   `mobile` varchar(20) DEFAULT NULL,
   `phone` varchar(50) DEFAULT NULL,
+  `view` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
 
 /*Table structure for table `users` */
 
@@ -50,7 +51,7 @@ CREATE TABLE `users` (
   `password` varchar(255) DEFAULT NULL,
   `secret_token` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
