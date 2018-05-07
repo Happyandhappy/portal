@@ -28,6 +28,23 @@ function getListData(){
 	echo json_encode($sale->getListViewDetail($url));
 }
 
+	// $url = $_SESSION['instance_url']."/services/data/v42.0/queryAll/?q=SELECT+name+from+Lead+where+Campaign+=+'Test'";
+	// $url = $_SESSION['instance_url']."/services/data/v42.0/queryAll/?q=SELECT+name+from+CampaignMember+where+CampaignId+=+'7011a000000SlNOAA0'";
+	// $url = $_SESSION['instance_url']."/services/data/v42.0/sobjects/CampaignMember/00v1a00000X631aAAB";
+	
+
+	// $ch = curl_init($url);
+	// curl_setopt($ch,CURLOPT_HTTPHEADER, array("Authorization: Bearer ".$_SESSION['access_token']));
+	// curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	// curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+	// $response = curl_exec($ch);
+	// curl_close($ch);
+	// $response = json_decode($response);
+	// echo "<pre>";
+	// print_r($response);
+	// echo "</pre>";
+	// exit;
+
 //services/data/v42.0/sobjects/Campaign/listviews
 //services/data/v42.0/sobjects/Account/listviews
 //services/data/v42.0/sobjects/Case/listviews

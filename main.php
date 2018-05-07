@@ -12,6 +12,7 @@ if(!isset($_SESSION['access_token']) || $_SESSION['access_token'] == "")
 	exit;
 }
 
+
 if ( count($_POST) > 0 ) {
 	$campaign 		= $_POST['campaign'];
 	$subcampaign 	= $_POST['subcampaign'];
@@ -51,9 +52,43 @@ if ( count($_POST) > 0 ) {
 	$res = $con->query($query);
 
 // update or inject curl requests here///////////////////////////////////////////////////////////////
-		
+
 }
 
+
+	$url = $_SESSION['instance_url']."/services/data/v42.0/queryAll/?q=SELECT+name+from+Campaign+where+name+=+'Test'";
+	$data = getData($url);
+	// $url = $_SESSION['instance_url']."/services/data/v42.0/queryAll/?q=SELECT+name+from+CampaignMember+where+CampaignId+=+'7011a000000SlNOAA0'";
+	// $url = $_SESSION['instance_url']."/services/data/v42.0/sobjects/CampaignMember/00v1a00000X631aAAB";
+	if ($data->totalSize>0){
+		$campaign_url = $data->records[0]->attributes->url;
+	}
+	if (isset($campaign_url)){
+		$data = getData($_SESSION['instance_url'].$campaign_url);
+		if (isset($data->Id)) $campaign_id = $data->Id;
+	}
+
+	if (isset($campaign_id)){
+		$url = $_SESSION['instance_url']."/services/data/v42.0/queryAll/?q=SELECT+Name+,+LeadId+,+CompanyOrAccount+,+State+,+Email+,+Status+from+CampaignMember+where+CampaignId+=+'".$campaign_id."'";
+		$data = getData($url);
+		exit;
+	}
+
+function getData($url){
+	$ch = curl_init($url);
+	curl_setopt($ch,CURLOPT_HTTPHEADER, array("Authorization: Bearer ".$_SESSION['access_token']));
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+	$response = curl_exec($ch);
+	curl_close($ch);
+	$response = json_decode($response);
+
+	echo "<pre>";
+	print_r($response);
+	echo "</pre>";
+	return $response;
+}
+	exit;
 ?>
 
 <!DOCTYPE html>
