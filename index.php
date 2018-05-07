@@ -60,9 +60,6 @@ function saveDatetoDB(){
 	if ($result->num_rows==0){
 		$query = "INSERT INTO users (username, password, secret_token) VALUES ('". $_SESSION['username']."','". $_SESSION['password'] . "','" . $_SESSION['secret_token']. "')";
 		$result = $con->query($query);
-
-		$query = "INSERT INTO settings (username,refreshRate) VALUES ('".$_SESSION['username']."', 5)";
-		$res = $con->query($query);
 	}
 
 	header('Location: ./main.php');	
@@ -169,4 +166,5 @@ function getAccess_Token(){
 	</div>
 </body>
 </html>
+
 

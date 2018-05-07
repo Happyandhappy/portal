@@ -6,6 +6,35 @@ if(!isset($_SESSION['access_token']) || $_SESSION['access_token'] == "")
 {
 	header("Location: ./index.php");exit;
 }
+
+
+if(!isset($_POST['view'])){
+	header("Location: ./main.php");exit;	
+}
+
+$con = getConnection();
+$query = "select * from settings where view='" . $_POST['view']."'";
+$result = $con->query($query);
+
+if($result->num_rows>0){
+	while ($row = $result->fetch_assoc()) {
+		$data = array(
+					"campaign" 		=> $row['campaign'],
+					"subcampaign" 	=> $row['subcampaign'],
+					"securityCode" 	=> $row['securityCode'],
+					"groupId"		=> $row['groupId'],
+					"refreshRate"	=> $row['refreshRate'],
+				);
+	}
+}else{
+	$data = array(
+					"campaign" 		=> "",
+					"subcampaign" 	=> "",
+					"securityCode" 	=> "",
+					"groupId"		=> "",
+					"refreshRate"	=> 5,
+				);
+}
 ?>
 
 <!DOCTYPE html>
@@ -18,7 +47,7 @@ if(!isset($_SESSION['access_token']) || $_SESSION['access_token'] == "")
 	<link rel="stylesheet" href="./assets/css/style.css">	
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>	
-	<script src="./assets/js/setting.js"></script>
+	<!-- <script src="./assets/js/setting.js"></script> -->
 </head>
 
 <body>
@@ -37,7 +66,7 @@ if(!isset($_SESSION['access_token']) || $_SESSION['access_token'] == "")
 	    <!-- Collect the nav links, forms, and other content for toggling -->
 	    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 	      <div class="navbar-form navbar-right">
-	      	<a href = "./main.php" class="btn btn-primary logout">Main Page <i class="glyphicon glyphicon-home"></i> </a>	
+	      	<!-- <a href = "./main.php" class="btn btn-primary logout">Main Page <i class="glyphicon glyphicon-home"></i> </a>	 -->
 	        <a class="btn btn-primary logout" id="logout" href="./app/api.php?logout=">LogOut <i class="glyphicon glyphicon-log-in"></i></a>	
 	      </div>
 	    </div>
@@ -48,26 +77,27 @@ if(!isset($_SESSION['access_token']) || $_SESSION['access_token'] == "")
 			<div id = "alert">
 			</div>
 			<form class="form" id = "form" method="POST" action="./main.php">
-				<input type="hidden" name="ownerId" id="ownerId" value="<?php if(isset($_SESSION['ownerId'])) echo $_SESSION['ownerId'] ;?>">
+				<input type="hidden" name="view" id="view" value="<?php echo $_POST['view'] ?>">
+
 				<div class="form-group">
 					<label class="warning">Campaign Name</label>
-					<input type="text" name="campaign" id="campaign" class="form-control input" required>
+					<input type="text" name="campaign" id="campaign" class="form-control input" required value="<?= $data['campaign'] ?>">
 				</div>
 				<div class="form-group">
 					<label>Sub Campaign Name</label>
-					<input type="text" name="subcampaign" id="subcompaign" class="form-control input">
+					<input type="text" name="subcampaign" id="subcompaign" class="form-control input" value="<?= $data['subcampaign'] ?>">
 				</div>
 				<div class="form-group">
 					<label class="warning">SecurityCode</label>
-					<input type="text" name="securityCode" id="securityCode" class="form-control input" required>
+					<input type="text" name="securityCode" id="securityCode" class="form-control input" required value="<?= $data['securityCode'] ?>">
 				</div>
 				<div class="form-group">
 					<label class="warning">GroupId</label>
-					<input type="text" name="groupId" id="gruopId" class="form-control input" required>
+					<input type="text" name="groupId" id="gruopId" class="form-control input" required value="<?= $data['groupId'] ?>">
 				</div>	
 				<div class="form-group">
 					<label class="warning">Refresh Rate (min)</label>
-					<input type="number" name="refreshRate" id="refreshRate" class="form-control input" value="5" required>
+					<input type="number" name="refreshRate" id="refreshRate" class="form-control input" value="5" required value="<?= $data['refreshRate'] ?>">
 				</div>
 				<div class="form-group">
 					<input type="submit" name="submit" class="form-control" value="Submit">

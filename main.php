@@ -2,9 +2,11 @@
 session_start();	 
 require_once('./config/database.php'); 
 require_once('./config/config.php');
+require_once('./app/Saleforce.php');
 
-// if (!isset($_SESSION['refreshRate']))  $_SESSION['refreshRate'] = 5;
+
 $_SESSION['refreshRate'] = getRefreshRate();
+
 
 if(!isset($_SESSION['access_token']) || $_SESSION['access_token'] == "")
 {
@@ -12,7 +14,10 @@ if(!isset($_SESSION['access_token']) || $_SESSION['access_token'] == "")
 	exit;
 }
 
+$sale = new Saleforce($_SESSION['access_token'], $_SESSION['instance_url']);
 
+$view = "";
+$data_result = array();
 if ( count($_POST) > 0 ) {
 	$campaign 		= $_POST['campaign'];
 	$subcampaign 	= $_POST['subcampaign'];
@@ -20,81 +25,111 @@ if ( count($_POST) > 0 ) {
 	$groupId		= $_POST['groupId'];
 	$refreshRate	= $_POST['refreshRate'];
 	
-	if (isset($_POST['firstName']))  $firstName	= $_POST['firstName'];
-	else $firstName	= null;
+	// get view data
+	$view = $_POST['view'];
+	$table_data = $sale->getListViewDetail($view);
 
-	if (isset($_POST['lastName']))   $lastName = $_POST['lastName'];
-	else $lastName	= null;
+	// get owner data
+	$owner_url = "/services/data/v42.0/queryAll/?q=select+LastName+,+FirstName+,+City+,+State+,+Country+,+PostalCode+,+StayInTouchNote+,+MobilePhone+,+Phone+from+User+where+Username+=+'".$_SESSION['username']."'";
+	$owner_data = $sale->getListViewDetail($owner_url);
+	$owner_data = $owner_data->records[0];
 
-	if (isset($_POST['address']))    $address = $_POST['address'];
-	else $address	= null;
+	if (isset($owner_data->LastName)) $lastName = $owner_data->LastName;
+	else $lastName = "";
 
-	if (isset($_POST['city']))       $city = $_POST['city'];
-	else $city		= null;
+	if (isset($owner_data->FirstName)) $firstName = $owner_data->FirstName;
+	else $firstName = "";
 
-	if (isset($_POST['state']))      $state	= $_POST['state'];
-	else $state		= null;
+	if (isset($owner_data->Address)) $address = $owner_data->Address->street . ", " . $owner_data->Address->state . ", " . $owner_data->Address->country;
+	else $address = "";
 
-	if (isset($_POST['zipcode']))    $zipcode = $_POST['zipcode'];
-	else $zipcode	= null;
+	if (isset($owner_data->City)) $city = $owner_data->City;
+	else $city = "";
 
-	if (isset($_POST['notes']))      $notes	= $_POST['notes'];
-	else $notes		= null;
-	
-	if (isset($_POST['mobile']))     $mobile = $_POST['mobile'];
-	else $mobile	= null;
+	if (isset($owner_data->State)) $state = $owner_data->State;
+	else $state = "";
 
-	if (isset($_POST['phone']))      $phone	= $_POST['phone'];
-	else $phone		= null;
+	if (isset($owner_data->PostalCode)) $zipcode = $owner_data->PostalCode;
+	else $zipcode = "";
 
+	if (isset($owner_data->StayInTouchNote)) $notes = $owner_data->StayInTouchNote;
+	else $notes = "";
+
+	if(isset($owner_data->MobilePhone)) $mobile = $owner_data->MobilePhone;
+	else $mobile = "";
+
+	if (isset($owner_data->Phone)) $phone = $owner_data->Phone;
+	else $phone = "";
+
+	$ClientId = 1;
+	// save or update data to db 
 	$con = getConnection();
-	$query = "UPDATE settings SET campaign = '".$campaign."', subcampaign='". $subcampaign . "' , securityCode='" . $securityCode. "', groupId='" . $groupId . "', refreshRate =" . $refreshRate . ", firstName = '" . $firstName . "' , lastName = '" . $lastName . "' , address = '" .  $address . "' , city = '" . $city . "' , state = '" . $state . "' , zipcode = '" . $zipcode . "' , notes = '" . $notes . "', mobile = '" . $mobile . "', phone ='" . $phone . "' where username = '" . $_SESSION['username']."'";
+
+	$query = "select * from settings where view='" . $_POST['view'] . "'";
+	$res = $con->query($query);
+	if ($res->num_rows>0){
+		$query = "UPDATE settings SET campaign = '".$campaign."', subcampaign='". $subcampaign . "' , securityCode='" . $securityCode. "', groupId='" . $groupId . "', refreshRate =" . $refreshRate . ", firstName = '" . $firstName . "' , lastName = '" . $lastName . "' , address = '" .  $address . "' , city = '" . $city . "' , state = '" . $state . "' , zipcode = '" . $zipcode . "' , notes = '" . $notes . "', mobile = '" . $mobile . "', phone ='" . $phone . "' where view = '" . $_POST['view']."'";		
+	}
+	else{
+		$query = "INSERT settings (username, campaign, subcampaign, securityCode, groupId, refreshRate, firstName, lastName, address, city, state, zipcode, notes, mobile, phone, view) VALUES ('".$_SESSION['username']. "','" . $campaign . "','" . $subcampaign . "','" . $securityCode . "','" . $groupId . "','" . $refreshRate . "','" . $firstName . "','" . $lastName . "','" . $address. "','" . $city . "','" . $state . "','" . $zipcode . "','" . $notes . "','" . $mobile . "','" . $phone . "','" . $view  . "')";
+	}
 	$res = $con->query($query);
 
+
 // update or inject curl requests here///////////////////////////////////////////////////////////////
+	$url = "https://www.chasedatacorp.com/HttpImport/InjectLead.php?Campaign=" . $campaign . 
+			"&Subcampaign=" . $subcampaign . 
+			"&GroupId=" . $groupId . 
+			"&SecurityCode=".$securityCode . 
+			"&FirstName=".$firstName . 
+			"&LastName=" . $lastName . 
+			"&ClientId=" . $ClientId . 
+			"&Address=" . $address . 
+			"&City=" . $city . 
+			"&State=" . $state . 
+			"&ZipCode" . $zipcode . 
+			"&Notes=" . $notes . 
+			"&PrimaryPhone=" . $phone . 
+			"&adv_MobilePhone=" . $mobile."&DuplicatesCheck=2";
 
-}
-
-
-	$url = $_SESSION['instance_url']."/services/data/v42.0/queryAll/?q=SELECT+name+from+Campaign+where+name+=+'Test'";
-	$data = getData($url);
-	// $url = $_SESSION['instance_url']."/services/data/v42.0/queryAll/?q=SELECT+name+from+CampaignMember+where+CampaignId+=+'7011a000000SlNOAA0'";
-	// $url = $_SESSION['instance_url']."/services/data/v42.0/sobjects/CampaignMember/00v1a00000X631aAAB";
-	if ($data->totalSize>0){
-		$campaign_url = $data->records[0]->attributes->url;
-	}
-	if (isset($campaign_url)){
-		$data = getData($_SESSION['instance_url'].$campaign_url);
-		if (isset($data->Id)) $campaign_id = $data->Id;
-	}
-
-	if (isset($campaign_id)){
-		$url = $_SESSION['instance_url']."/services/data/v42.0/queryAll/?q=SELECT+Name+,+LeadId+,+CompanyOrAccount+,+State+,+Email+,+Status+from+CampaignMember+where+CampaignId+=+'".$campaign_id."'";
-		$data = getData($url);
-		exit;
-	}
-
-function getData($url){
 	$ch = curl_init($url);
-	curl_setopt($ch,CURLOPT_HTTPHEADER, array("Authorization: Bearer ".$_SESSION['access_token']));
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-	$response = curl_exec($ch);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+	$res = curl_exec($ch);
 	curl_close($ch);
-	$response = json_decode($response);
+	$res = str_replace("<br>", "", $res);
+	$res = str_replace("\n", "", $res);
 
-	echo "<pre>";
-	print_r($response);
-	echo "</pre>";
-	return $response;
+	if ($res != "Result: OK"){
+		$url = "https://www.chasedatacorp.com/HttpImport/UpdateLead.php?GroupId=" . $groupId . 
+				"&SecurityCode=" . $securityCode . 
+				"&SearchField=Phone&Identifier=" . $phone . 
+				"&FirstName=" . $firstName . 
+				"&LastName=" . $lastName . 
+				"&adv_MobilePhone=" . $mobile . 
+				"&Address=" . $address . 
+				"&State=" . $state . 
+				"&ZipCode" . $zipcode . 
+				"&Notes=" . $notes;
+
+			$ch = curl_init($url);
+			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+			$res = curl_exec($ch);
+			curl_close($ch);
+	}
 }
-	exit;
+
+// select views data
+$url ="/services/data/v42.0/sobjects/Lead/listviews";
+$select_data = $sale->getListViewDetail($url);
+$index = 0;
 ?>
 
 <!DOCTYPE html>
 <html>
-
-<title>Saleforce Portal</title>
+<head>
+	<title>Saleforce Portal</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
@@ -102,11 +137,9 @@ function getData($url){
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>	
 	<link rel="stylesheet" href="./assets/css/style.css">	
 	<script src="./assets/js/main.js"></script>
-<head>
-	<title>Saleforce Portal</title>
 </head>
 <body>
-	<input type="hidden" id = "refreshRate" name="refreshRate" value="<?php echo($_SESSION['refreshRate']);?>">
+	<input type="hidden" id = "refreshRate" name="refreshRate" value="<?php echo $refreshRate;?>">
 	<nav class="navbar navbar-default">
 	  <div class="container-fluid">
 	    <div class="navbar-header">
@@ -122,7 +155,7 @@ function getData($url){
 	    <!-- Collect the nav links, forms, and other content for toggling -->
 	    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 	      <div class="navbar-form navbar-right">
-	      	<a href = "./setting.php" class="btn btn-primary logout" id="setting">Setting <i class="glyphicon glyphicon-cog"></i></a>	
+	      	<!-- <a href = "./setting.php" class="btn btn-primary logout" id="setting">Setting <i class="glyphicon glyphicon-cog"></i></a>	 -->
 	        <a class="btn btn-primary logout" id="logout" href="./app/api.php?logout=">LogOut <i class="glyphicon glyphicon-log-in"></i></a>	
 	      </div>
 	    </div>
@@ -130,26 +163,76 @@ function getData($url){
 	</nav>
 
 	<div class="container">
-		<div class="col-md-6 col-md-offset-3 col-sm-6 col-sm-offset-3 col-6 col-offset-3">
-			
-			<div class="row icon">
-					<div class="iconmelon">
-						<img src="./assets/logo.png">
+		<div class="panel_body">
+			<div class="col-md-6 col-md-offset-3 col-sm-6 col-sm-offset-3 col-6 col-offset-3">
+				
+				<div class="row icon">
+						<div class="iconmelon">
+							<img src="./assets/logo.png">
+						</div>
 					</div>
-				</div>
-			<form method="POST" class="form">
-				<div class="form-group">
-					<label>Select Views</label>
-	                <select class="selectpicker form-control select" id="views" name="view" required="">
-	                </select>
-				</div>
-			</form>
-		</div>	
-		<div  class="col-md-12 col-sm-6 col-6 col-offset-3">	
-			<table class="table table-striped" id="table">				
-			</table>
+				<form method="POST" class="form" action="./setting.php">
+					<div class="form-group">
+						<label>Select Views</label>
+		                <select class="selectpicker form-control select" id="views" name="view" required="">
+		                	<option hidden required>- None -</option>
+		                	<?php
+		                		foreach ($select_data->listviews as $row) {
+		                			if ($view == $row->resultsUrl)
+		                				echo "<option value='".$row->resultsUrl."' selected>".$row->label."</option>";
+		                			else 
+		                				echo "<option value='".$row->resultsUrl."'>".$row->label."</option>";
+		                		}
+		                	?>
+		                </select>
+					</div>
+				</form>
+			</div>	
+			<div  class="col-md-12 col-sm-6 col-6 col-offset-3">	
+				<table class="table table-striped" id="table">
+					<?php if (isset($table_data->records) && count($table_data->records)>0):?>
+					<thead>
+						<tr>
+							<th>_No</th>
+							<th>NAME</th>
+							<th>COMPANY</th>
+							<th>STATE/PROVINCE</th>
+							<th>EMAIL</th>
+							<th>LEAD STATUS</th>
+							<th>CREATED DATE</th>
+							<th>OWNER ALIAS</th>
+							<th>UNREAD BY OWNER</th>
+						</tr>
+					</thead>
+						<?php foreach ($table_data->records as $row) { $index++;?>
+							<tr>
+								<td><?= $index ?></td>
+								<td><?= $row->columns[0]->value ?></td>
+								<td><?= $row->columns[1]->value ?></td>
+								<td><?= $row->columns[2]->value ?></td>
+								<td><?= $row->columns[3]->value ?></td>
+								<td><?= $row->columns[4]->value ?></td>
+								<td><?= $row->columns[5]->value ?></td>
+								<td><?= $row->columns[6]->value ?></td>
+								<td>
+									<?php 
+										if ($row->columns[7]->value == 'true') 
+											echo "<input type='checkbox' checked disabled>";
+										else 
+											echo "<input type='checkbox' disabled>";
+									?>
+								</td>
+							</tr>	
+						<?php } ?>
+					<tbody>
+						
+					</tbody>
+					<?php endif?>				
+				</table>
+			</div>
 		</div>
-		<div class="loader hidden"></div>
-	</div>
+			<div class="loader hidden"></div>
+		</div>
+
 </body>
 </html>

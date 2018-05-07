@@ -158,3 +158,11 @@ input[name="submit"]{
   background-color: #f2dede;
     color: #a94442;
 }
+
+.container{
+  width: 90%;
+}
+
+table{
+  border: 1px solid rgb(240,240,240);
+}

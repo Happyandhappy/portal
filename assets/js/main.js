@@ -3,38 +3,17 @@
 	
 	$(document).ready(function(){
 			var refreshRate = $("#refreshRate").val();
-		    // Show Spinner after loading
-			$(".loader").removeClass("hidden");
-			$("#views").prop("disabled", true);
-
-			$.ajax({
-				url     : "./app/api.php?get=/services/data/v42.0/sobjects/Lead/listviews",
-				success : function(res){
-					  	 // Hide Spinner after loading
-		     			 $(".loader").addClass("hidden");
-		     			 $("#views").prop("disabled", false);
-		     		     listData = JSON.parse(res);
-		     			 
-
-					     // check if session expired or not
-					     if ( typeof listData[0]!== "undefined" && listData[0]){
-					     	if (listData[0]['errorCode'] == "INVALID_SESSION_ID") window.location.replace("./app/api.php?logout="); 				     	
-					     }
-					     console.log(refreshRate*60*1000);
-					     showSelect(listData);
-					     current_view = $("#views").val();
-					     request(current_view,2);
-					     setInterval( function(){request(current_view,2);}, refreshRate*60*1000);
-				},
-				error   : function(err){}
-			});
+			current_view = $("#views").val();
+			console.log(current_view + " : " + refreshRate);
+			setInterval( function(){request(current_view,2);}, refreshRate*60*1000);
 
 			/* Change of view selector */
 			$("#views").change(function(){
 				current_view = $(this).val();
 				$("#table").html('');
-				request(current_view,2);
-				setInterval( function(){request(current_view,2);},refreshRate*60*1000);
+				$(".form").submit();
+				// request(current_view,2);
+				// setInterval( function(){request(current_view,2);},refreshRate*60*1000);
 			});
 	});
 	
