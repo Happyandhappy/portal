@@ -167,8 +167,8 @@ $index = 0;
 			<div class="col-md-6 col-md-offset-3 col-sm-6 col-sm-offset-3 col-6 col-offset-3">
 				
 				<div class="row icon">
-						<div class="iconmelon">
-							<img src="./assets/logo.png">
+						<div class="_logo">
+							<img src="./assets/logo.jpg">
 						</div>
 					</div>
 				<form method="POST" class="form" action="./setting.php">

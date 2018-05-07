@@ -5,7 +5,7 @@
 			var refreshRate = $("#refreshRate").val();
 			current_view = $("#views").val();
 			console.log(current_view + " : " + refreshRate);
-			setInterval( function(){request(current_view,2);}, refreshRate*60*1000);
+			if(refreshRate >0)setInterval( function(){request(current_view,2);}, refreshRate*60*1000);
 
 			/* Change of view selector */
 			$("#views").change(function(){
