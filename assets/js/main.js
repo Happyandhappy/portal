@@ -23,7 +23,6 @@
 				$.ajax({
 					url : url,
 					success : function(res){
-						
 					},
 					error : function(err){
 						
@@ -82,7 +81,7 @@
 			 	 str = str + "<input type='checkbox' id='test" + i + "' checked disabled/><label for='test" + i + "'></label>";
 			else 
 			     str = str + "<input type='checkbox' id='test" + i + "' disabled/><label for='test" + i + "'></label>";
-			if ($('option')==='1')send(data[i]['columns'][8]['value']);
+			if ($('#option').val()==='1')send(data[i]['columns'][8]['value']);
 		}
 
 		str = str + "</tbody>";
