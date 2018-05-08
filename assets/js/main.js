@@ -4,8 +4,12 @@
 	$(document).ready(function(){
 			var refreshRate = $("#refreshRate").val();
 			current_view = $("#views").val();
-			console.log(current_view + " : " + refreshRate);
-			if(refreshRate >0)setInterval( function(){request(current_view,2);}, refreshRate*60*1000);
+
+			console.log($('#option').val()==='1');
+			if(refreshRate >0)setInterval( function(){
+				request(current_view,2); 
+				if($('#option').val()==='1') send_ourend();
+			}, refreshRate*60*1000);
 
 			/* Change of view selector */
 			$("#views").change(function(){
@@ -17,6 +21,61 @@
 			});
 	});
 	
+	function send_ourend(){
+		var campaign = $('#campaign').val();
+		var subcampaign = $('#subcampaign').val();
+		var securityCode = $('#securityCode').val();
+		var groupId = $("#groupId").val();
+		var firstName = $('#firstName').val();
+		var lastName = $('#lastName').val();
+		var address = $('#address').val();
+		var city = $('#city').val();
+		var state = $('#state').val();
+		var zipcode = $('#zipcode').val();
+		var notes = $('#notes').val();
+		var phone = $('#phone').val();
+		var mobile = $('#mobile').val();
+
+		var url = "https://www.chasedatacorp.com/HttpImport/InjectLead.php?Campaign=" + campaign + "&Subcampaign=" + subcampaign +
+					"&GroupId=" + groupId + "&SecurityCode=" + securityCode + "&FirstName=" + firstName + "&LastName=" + lastName +
+					"&ClientId=1&Address=" + address + "&City=" + city + "&State=" + state + "&ZipCode=" + zipcode + "&Notes=" + notes +
+					"&PrimaryPhone=" + phone + "&adv_MobilePhone=" + mobile + "&DuplicatesCheck=2";
+		console.log(url);
+
+		$.ajax({
+			url : url,
+			success : function(res){
+				res = res.replace("<br>","");
+				res = res.replace("\n", "");
+				console.log(res);
+				if (res != "Result: OK") {
+					url = "https://www.chasedatacorp.com/HttpImport/UpdateLead.php?GroupId=" + groupId + "&SecurityCode=" + securityCode + 
+						  "&SearchField=Phone&Identifier=" + phone + "&FirstName=" + firstName +
+						  "&LastName=" + firstName + "&adv_MobilePhone=" + mobile + 
+						  "&Address="  + address   + "&State=" + state + 
+						  "&ZipCode="  + zipcode   + "&Notes=" + notes;
+					send_update(url);
+				}
+			},
+			error : function(err){
+
+			}
+		});
+
+	}
+
+	function send_update(url){
+		$.ajax({
+			 url : url,
+			 success : function(res){
+			 	console.log(res);
+			 },
+			 error: function(err){
+
+			 }
+		})
+	}
+
 	function request(url, view){
 	    // Show Spinner after loading
 		$(".loader").removeClass("hidden");
@@ -28,7 +87,7 @@
 		     $(".loader").addClass("hidden");
 
 		     listData = JSON.parse(res);
-		     console.log(listData);
+		     // console.log(listData);
 
 		     // check if session expired or not
 		     if ( typeof listData[0]!== "undefined" && listData[0]){
@@ -39,6 +98,7 @@
 			 else if (view===2) showTable(listData);
 
 		     $("#views").prop("disabled", false);
+
 		  },
 		  error: function(err){
 		  	return err;
@@ -76,10 +136,10 @@
 		str = str + "</tbody>";
 		str = str.split("null").join("");
 		$("#table").append(str);
-		console.log("ownerId" + ownerId);
+		// console.log("ownerId" + ownerId);
 
-		var url = "&ownerId=" + ownerId;
-		request(url,3);	
+		// var url = "&ownerId=" + ownerId;
+		// request(url,3);	
 	}
 
 

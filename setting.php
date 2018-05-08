@@ -18,12 +18,14 @@ $result = $con->query($query);
 
 if($result->num_rows>0){
 	while ($row = $result->fetch_assoc()) {
+
 		$data = array(
 					"campaign" 		=> $row['campaign'],
 					"subcampaign" 	=> $row['subcampaign'],
 					"securityCode" 	=> $row['securityCode'],
 					"groupId"		=> $row['groupId'],
 					"refreshRate"	=> $row['refreshRate'],
+					"option"		=> $row['option'],
 				);
 	}
 }else{
@@ -33,6 +35,7 @@ if($result->num_rows>0){
 					"securityCode" 	=> "",
 					"groupId"		=> "",
 					"refreshRate"	=> 5,
+					"option"		=> 1,
 				);
 }
 ?>
@@ -72,41 +75,61 @@ if($result->num_rows>0){
 	    </div>
 	  </div>
 	</nav>
-	<div class="container">
-		<div class="col-md-6 col-md-offset-3 col-sm-6 col-sm-offset-3 col-6 col-offset-3">
-			<div id = "alert">
+<!-- line modal -->
+<div class="modal fade in" id="squarespaceModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" style="display:block;">
+  <div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h3 class="modal-title" id="lineModalLabel"><i class="glyphicon glyphicon-cog"></i>  Settings</h3>
 			</div>
 			<form class="form" id = "form" method="POST" action="./main.php">
-				<input type="hidden" name="view" id="view" value="<?php echo $_POST['view'] ?>">
-
-				<div class="form-group">
-					<label class="warning">Campaign Name</label>
-					<input type="text" name="campaign" id="campaign" class="form-control input" required value="<?= $data['campaign'] ?>">
+				<div class="modal-body">
+	            <!-- content goes here -->
+	              <input type="hidden" name="view" id="view" value="<?php echo $_POST['view'] ?>">
+					<div class="form-group">
+						<label class="warning">Campaign Name</label>
+						<input type="text" name="campaign" id="campaign" class="form-control input" required value="<?= $data['campaign'] ?>">
+					</div>
+					<div class="form-group">
+						<label>Sub Campaign Name</label>
+						<input type="text" name="subcampaign" id="subcompaign" class="form-control input" value="<?= $data['subcampaign'] ?>">
+					</div>
+					<div class="form-group">
+						<label class="warning">SecurityCode</label>
+						<input type="text" name="securityCode" id="securityCode" class="form-control input" required value="<?= $data['securityCode'] ?>">
+					</div>
+					<div class="form-group">
+						<label class="warning">GroupId</label>
+						<input type="text" name="groupId" id="gruopId" class="form-control input" required value="<?= $data['groupId'] ?>">
+					</div>	
+					<div class="form-group">
+						<label class="warning">Refresh Rate (min)</label>
+						<input type="number" name="refreshRate" id="refreshRate" class="form-control input" required value="<?= $data['refreshRate'] ?>">
+					</div>
+					<div class="form-group">
+						<label class="warning">Stop/Start to sending Leads</label>
+						<select name="option" class="form-control input">
+							<?php if ($data['option']==1){ ?>
+								<option value="1" selected>Yes</option>
+								<option value="0">No</option>
+							<?php }else{ ?>
+								<option value="1">Yes</option>
+								<option value="0"  selected>No</option>
+							<?php }?>
+						</select> 
+					</div>
+					
 				</div>
-				<div class="form-group">
-					<label>Sub Campaign Name</label>
-					<input type="text" name="subcampaign" id="subcompaign" class="form-control input" value="<?= $data['subcampaign'] ?>">
+				<div class="modal-footer">
+					<div class="form-group">
+						<input type="submit" name="submit" class="form-control" value="Submit">
+						<div class="loader hidden"></div>
+					</div>
 				</div>
-				<div class="form-group">
-					<label class="warning">SecurityCode</label>
-					<input type="text" name="securityCode" id="securityCode" class="form-control input" required value="<?= $data['securityCode'] ?>">
-				</div>
-				<div class="form-group">
-					<label class="warning">GroupId</label>
-					<input type="text" name="groupId" id="gruopId" class="form-control input" required value="<?= $data['groupId'] ?>">
-				</div>	
-				<div class="form-group">
-					<label class="warning">Refresh Rate (min)</label>
-					<input type="number" name="refreshRate" id="refreshRate" class="form-control input" value="5" required value="<?= $data['refreshRate'] ?>">
-				</div>
-				<div class="form-group">
-					<input type="submit" name="submit" class="form-control" value="Submit">
-					<div class="loader hidden"></div>
-				</div>
-			</form>
+	        </form>
 		</div>
-	</div>
-
-
+  </div>
+</div>
+<div class="modal-backdrop fade in"></div>
 </body>
 </html>

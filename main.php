@@ -5,9 +5,6 @@ require_once('./config/config.php');
 require_once('./app/Saleforce.php');
 
 
-$_SESSION['refreshRate'] = getRefreshRate();
-
-
 if(!isset($_SESSION['access_token']) || $_SESSION['access_token'] == "")
 {
 	header("Location: ./index.php");
@@ -24,7 +21,8 @@ if ( count($_POST) > 0 ) {
 	$securityCode 	= $_POST['securityCode'];
 	$groupId		= $_POST['groupId'];
 	$refreshRate	= $_POST['refreshRate'];
-	
+	$option  		= $_POST['option'];
+
 	// get view data
 	$view = $_POST['view'];
 	$table_data = $sale->getListViewDetail($view);
@@ -68,55 +66,56 @@ if ( count($_POST) > 0 ) {
 	$query = "select * from settings where view='" . $_POST['view'] . "'";
 	$res = $con->query($query);
 	if ($res->num_rows>0){
-		$query = "UPDATE settings SET campaign = '".$campaign."', subcampaign='". $subcampaign . "' , securityCode='" . $securityCode. "', groupId='" . $groupId . "', refreshRate =" . $refreshRate . ", firstName = '" . $firstName . "' , lastName = '" . $lastName . "' , address = '" .  $address . "' , city = '" . $city . "' , state = '" . $state . "' , zipcode = '" . $zipcode . "' , notes = '" . $notes . "', mobile = '" . $mobile . "', phone ='" . $phone . "' where view = '" . $_POST['view']."'";		
+		$query = "UPDATE settings SET campaign = '".$campaign."', subcampaign='". $subcampaign . "' , securityCode='" . $securityCode. "', groupId='" . $groupId . "', refreshRate =" . $refreshRate . "', option =" . $option . ", firstName = '" . $firstName . "' , lastName = '" . $lastName . "' , address = '" .  $address . "' , city = '" . $city . "' , state = '" . $state . "' , zipcode = '" . $zipcode . "' , notes = '" . $notes . "', mobile = '" . $mobile . "', phone ='" . $phone . "' where view = '" . $_POST['view']."'";		
 	}
 	else{
-		$query = "INSERT settings (username, campaign, subcampaign, securityCode, groupId, refreshRate, firstName, lastName, address, city, state, zipcode, notes, mobile, phone, view) VALUES ('".$_SESSION['username']. "','" . $campaign . "','" . $subcampaign . "','" . $securityCode . "','" . $groupId . "','" . $refreshRate . "','" . $firstName . "','" . $lastName . "','" . $address. "','" . $city . "','" . $state . "','" . $zipcode . "','" . $notes . "','" . $mobile . "','" . $phone . "','" . $view  . "')";
+		$query = "INSERT settings (username, campaign, subcampaign, securityCode, groupId, refreshRate, option, firstName, lastName, address, city, state, zipcode, notes, mobile, phone, view) VALUES ('".$_SESSION['username']. "','" . $campaign . "','" . $subcampaign . "','" . $securityCode . "','" . $groupId . "','" . $refreshRate . "','" . $firstName . "','" . $option . "','" . $lastName . "','" . $address. "','" . $city . "','" . $state . "','" . $zipcode . "','" . $notes . "','" . $mobile . "','" . $phone . "','" . $view  . "')";
 	}
 	$res = $con->query($query);
 
-
-// update or inject curl requests here///////////////////////////////////////////////////////////////
-	$url = "https://www.chasedatacorp.com/HttpImport/InjectLead.php?Campaign=" . $campaign . 
-			"&Subcampaign=" . $subcampaign . 
-			"&GroupId=" . $groupId . 
-			"&SecurityCode=".$securityCode . 
-			"&FirstName=".$firstName . 
-			"&LastName=" . $lastName . 
-			"&ClientId=" . $ClientId . 
-			"&Address=" . $address . 
-			"&City=" . $city . 
-			"&State=" . $state . 
-			"&ZipCode" . $zipcode . 
-			"&Notes=" . $notes . 
-			"&PrimaryPhone=" . $phone . 
-			"&adv_MobilePhone=" . $mobile."&DuplicatesCheck=2";
-
-	$ch = curl_init($url);
-	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-	$res = curl_exec($ch);
-	curl_close($ch);
-	$res = str_replace("<br>", "", $res);
-	$res = str_replace("\n", "", $res);
-
-	if ($res != "Result: OK"){
-		$url = "https://www.chasedatacorp.com/HttpImport/UpdateLead.php?GroupId=" . $groupId . 
-				"&SecurityCode=" . $securityCode . 
-				"&SearchField=Phone&Identifier=" . $phone . 
-				"&FirstName=" . $firstName . 
+	if ($option==1){
+		// update or inject curl requests here///////////////////////////////////////////////////////////////
+		$url = "https://www.chasedatacorp.com/HttpImport/InjectLead.php?Campaign=" . $campaign . 
+				"&Subcampaign=" . $subcampaign . 
+				"&GroupId=" . $groupId . 
+				"&SecurityCode=".$securityCode . 
+				"&FirstName=".$firstName . 
 				"&LastName=" . $lastName . 
-				"&adv_MobilePhone=" . $mobile . 
+				"&ClientId=" . $ClientId . 
 				"&Address=" . $address . 
+				"&City=" . $city . 
 				"&State=" . $state . 
-				"&ZipCode" . $zipcode . 
-				"&Notes=" . $notes;
+				"&ZipCode=" . $zipcode . 
+				"&Notes=" . $notes . 
+				"&PrimaryPhone=" . $phone . 
+				"&adv_MobilePhone=" . $mobile."&DuplicatesCheck=2";
 
-			$ch = curl_init($url);
-			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-			$res = curl_exec($ch);
-			curl_close($ch);
+		$ch = curl_init($url);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		$res = curl_exec($ch);
+		curl_close($ch);
+		$res = str_replace("<br>", "", $res);
+		$res = str_replace("\n", "", $res);
+		// if Result is not Ok, then update data
+		if ($res != "Result: OK"){
+			$url = "https://www.chasedatacorp.com/HttpImport/UpdateLead.php?GroupId=" . $groupId . 
+					"&SecurityCode=" . $securityCode . 
+					"&SearchField=Phone&Identifier=" . $phone . 
+					"&FirstName=" . $firstName . 
+					"&LastName=" . $lastName . 
+					"&adv_MobilePhone=" . $mobile . 
+					"&Address=" . $address . 
+					"&State=" . $state . 
+					"&ZipCode=" . $zipcode . 
+					"&Notes=" . $notes;
+
+				$ch = curl_init($url);
+				curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+				$res = curl_exec($ch);
+				curl_close($ch);
+		}
 	}
 }
 
@@ -139,7 +138,23 @@ $index = 0;
 	<script src="./assets/js/main.js"></script>
 </head>
 <body>
-	<input type="hidden" id = "refreshRate" name="refreshRate" value="<?php echo $refreshRate;?>">
+	<?php	if ( count($_POST) > 0 ) {?>
+		<input type="hidden" id = "refreshRate" name="refreshRate" value="<?php echo $refreshRate;?>">
+		<input type="hidden" id = "option" name="option" value="<?php echo $option;?>">
+		<input type="hidden" id = "campaign" name="campaign" value="<?php echo $campaign;?>">
+		<input type="hidden" id = "subcampaign" name="subcampaign" value="<?php echo $subcampaign ;?>">
+		<input type="hidden" id = "securityCode" name="securityCode" value="<?php echo $securityCode ;?>">
+		<input type="hidden" id = "groupId" name="groupId" value="<?php echo $groupId ;?>">
+		<input type="hidden" id = "firstName" name="firstName" value="<?php echo $firstName ;?>">
+		<input type="hidden" id = "lastName" name="lastName" value="<?php echo $lastName ;?>">
+		<input type="hidden" id = "address" name="update" value="<?php echo $address ;?>">
+		<input type="hidden" id = "city" name="city" value="<?php echo $city ;?>">
+		<input type="hidden" id = "state" name="state" value="<?php echo $state ;?>">
+		<input type="hidden" id = "zipcode" name="zipcode" value="<?php echo $zipcode ;?>">
+		<input type="hidden" id = "notes" name="notes" value="<?php echo $notes ;?>">
+		<input type="hidden" id = "phone" name="phone" value="<?php echo $phone ;?>">
+		<input type="hidden" id = "mobile" name="mobile" value="<?php echo $mobile ;?>">
+	<?php } ?>
 	<nav class="navbar navbar-default">
 	  <div class="container-fluid">
 	    <div class="navbar-header">
@@ -168,7 +183,8 @@ $index = 0;
 				
 				<div class="row icon">
 						<div class="_logo">
-							<img src="./assets/logo.jpg">
+							<img src="./assets/logo1.png" style="height: 85px;"> <span style="font-size: 30px; top:50%;">&nbsp;&nbsp;+&nbsp;&nbsp;</span>
+							<img src="./assets/logo.png" style="height: 85px;">
 						</div>
 					</div>
 				<form method="POST" class="form" action="./setting.php">
