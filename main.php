@@ -183,7 +183,7 @@ $index = 0;
 	<div class="container">
 		<div class="panel_body">
 			<div class="row">
-				<div class="col-md-8 col-md-offset-3 col-sm-8 col-sm-offset-3 col-8 col-offset-3">
+				<div class="col-md-6 col-md-offset-3 col-sm-6 col-sm-offset-3 col-6 col-offset-3">
 					<div class="row icon">
 						<div class="_logo">
 							<img src="./assets/logo1.png" style="height: 85px;"> <span style="font-size: 30px; top:50%;">&nbsp;&nbsp;+&nbsp;&nbsp;</span>
