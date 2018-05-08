@@ -25,7 +25,6 @@ if($result->num_rows>0){
 					"securityCode" 	=> $row['securityCode'],
 					"groupId"		=> $row['groupId'],
 					"refreshRate"	=> $row['refreshRate'],
-					"option"		=> $row['option'],
 				);
 	}
 }else{
@@ -35,7 +34,6 @@ if($result->num_rows>0){
 					"securityCode" 	=> "",
 					"groupId"		=> "",
 					"refreshRate"	=> 5,
-					"option"		=> 1,
 				);
 }
 ?>
@@ -105,20 +103,7 @@ if($result->num_rows>0){
 					<div class="form-group">
 						<label class="warning">Refresh Rate (min)</label>
 						<input type="number" name="refreshRate" id="refreshRate" class="form-control input" required value="<?= $data['refreshRate'] ?>">
-					</div>
-					<div class="form-group">
-						<label class="warning">Stop/Start to sending Leads</label>
-						<select name="option" class="form-control input">
-							<?php if ($data['option']==1){ ?>
-								<option value="1" selected>Yes</option>
-								<option value="0">No</option>
-							<?php }else{ ?>
-								<option value="1">Yes</option>
-								<option value="0"  selected>No</option>
-							<?php }?>
-						</select> 
-					</div>
-					
+					</div>					
 				</div>
 				<div class="modal-footer">
 					<div class="form-group">

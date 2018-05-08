@@ -11,9 +11,13 @@ if(!isset($_SESSION['access_token']) || $_SESSION['access_token'] == "")
 	exit;
 }
 
+
 $sale = new Saleforce($_SESSION['access_token'], $_SESSION['instance_url']);
 
+$option = 0;
 $view = "";
+$option = getOption($view);
+
 $data_result = array();
 if ( count($_POST) > 0 ) {
 	$campaign 		= $_POST['campaign'];
@@ -21,12 +25,12 @@ if ( count($_POST) > 0 ) {
 	$securityCode 	= $_POST['securityCode'];
 	$groupId		= $_POST['groupId'];
 	$refreshRate	= $_POST['refreshRate'];
-	$option  		= $_POST['option'];
 
 	// get view data
 	$view = $_POST['view'];
 	$table_data = $sale->getListViewDetail($view);
-
+	$option = getOption($view);
+	echo $option;
 	// get owner data
 	$owner_url = "/services/data/v42.0/queryAll/?q=select+LastName+,+FirstName+,+City+,+State+,+Country+,+PostalCode+,+StayInTouchNote+,+MobilePhone+,+Phone+from+User+where+Username+=+'".$_SESSION['username']."'";
 	$owner_data = $sale->getListViewDetail($owner_url);
@@ -66,7 +70,7 @@ if ( count($_POST) > 0 ) {
 	$query = "select * from settings where view='" . $_POST['view'] . "'";
 	$res = $con->query($query);
 	if ($res->num_rows>0){
-		$query = "UPDATE settings SET campaign = '".$campaign."', subcampaign='". $subcampaign . "' , securityCode='" . $securityCode. "', groupId='" . $groupId . "', refreshRate =" . $refreshRate . "', option =" . $option . ", firstName = '" . $firstName . "' , lastName = '" . $lastName . "' , address = '" .  $address . "' , city = '" . $city . "' , state = '" . $state . "' , zipcode = '" . $zipcode . "' , notes = '" . $notes . "', mobile = '" . $mobile . "', phone ='" . $phone . "' where view = '" . $_POST['view']."'";		
+		$query = "UPDATE settings SET campaign = '".$campaign."', subcampaign='". $subcampaign . "' , securityCode='" . $securityCode. "', groupId='" . $groupId . "', refreshRate =" . $refreshRate . "', option =" . $option . ", firstName = '" . $firstName . "' , lastName = '" . $lastName . "' , address = '" .  $address . "' , city = '" . $city . "' , state = '" . $state . "' , zipcode = '" . $zipcode . "' , notes = '" . $notes . "', mobile = '" . $mobile . "', phone ='" . $phone . "' where view = '" . $_POST['view']."'";			
 	}
 	else{
 		$query = "INSERT settings (username, campaign, subcampaign, securityCode, groupId, refreshRate, option, firstName, lastName, address, city, state, zipcode, notes, mobile, phone, view) VALUES ('".$_SESSION['username']. "','" . $campaign . "','" . $subcampaign . "','" . $securityCode . "','" . $groupId . "','" . $refreshRate . "','" . $firstName . "','" . $option . "','" . $lastName . "','" . $address. "','" . $city . "','" . $state . "','" . $zipcode . "','" . $notes . "','" . $mobile . "','" . $phone . "','" . $view  . "')";
@@ -117,6 +121,8 @@ if ( count($_POST) > 0 ) {
 				curl_close($ch);
 		}
 	}
+
+	echo $option;
 }
 
 // select views data
@@ -140,7 +146,6 @@ $index = 0;
 <body>
 	<?php	if ( count($_POST) > 0 ) {?>
 		<input type="hidden" id = "refreshRate" name="refreshRate" value="<?php echo $refreshRate;?>">
-		<input type="hidden" id = "option" name="option" value="<?php echo $option;?>">
 		<input type="hidden" id = "campaign" name="campaign" value="<?php echo $campaign;?>">
 		<input type="hidden" id = "subcampaign" name="subcampaign" value="<?php echo $subcampaign ;?>">
 		<input type="hidden" id = "securityCode" name="securityCode" value="<?php echo $securityCode ;?>">
@@ -179,77 +184,96 @@ $index = 0;
 
 	<div class="container">
 		<div class="panel_body">
-			<div class="col-md-6 col-md-offset-3 col-sm-6 col-sm-offset-3 col-6 col-offset-3">
-				
-				<div class="row icon">
+			<div class="row">
+				<div class="col-md-8 col-md-offset-3 col-sm-8 col-sm-offset-3 col-8 col-offset-3">
+					<div class="row icon">
 						<div class="_logo">
 							<img src="./assets/logo1.png" style="height: 85px;"> <span style="font-size: 30px; top:50%;">&nbsp;&nbsp;+&nbsp;&nbsp;</span>
 							<img src="./assets/logo.png" style="height: 85px;">
 						</div>
 					</div>
-				<form method="POST" class="form" action="./setting.php">
-					<div class="form-group">
-						<label>Select Views</label>
-		                <select class="selectpicker form-control select" id="views" name="view" required="">
-		                	<option hidden required>- None -</option>
-		                	<?php
-		                		foreach ($select_data->listviews as $row) {
-		                			if ($view == $row->resultsUrl)
-		                				echo "<option value='".$row->resultsUrl."' selected>".$row->label."</option>";
-		                			else 
-		                				echo "<option value='".$row->resultsUrl."'>".$row->label."</option>";
-		                		}
-		                	?>
-		                </select>
-					</div>
-				</form>
-			</div>	
-
-			<div  class="col-md-12 col-sm-6 col-6 col-offset-3 second">	
-				<table class="table table-striped" id="table">
-					<?php if (isset($table_data->records) && count($table_data->records)>0):?>
-					<thead>
-						<tr>
-							<th>_No</th>
-							<th>NAME</th>
-							<th>COMPANY</th>
-							<th>STATE/PROVINCE</th>
-							<th>EMAIL</th>
-							<th>LEAD STATUS</th>
-							<th>CREATED DATE</th>
-							<th>OWNER ALIAS</th>
-							<th>UNREAD BY OWNER</th>
-						</tr>
-					</thead>
-						<?php foreach ($table_data->records as $row) { $index++;?>
-							<tr>
-								<td><?= $index ?></td>
-								<td><?= $row->columns[0]->value ?></td>
-								<td><?= $row->columns[1]->value ?></td>
-								<td><?= $row->columns[2]->value ?></td>
-								<td><?= $row->columns[3]->value ?></td>
-								<td><?= $row->columns[4]->value ?></td>
-								<td><?= $row->columns[5]->value ?></td>
-								<td><?= $row->columns[6]->value ?></td>
-								<td>
-									<?php 
-										if ($row->columns[7]->value == 'true') 
-											echo "<input type='checkbox' id='test".$index ."' checked disabled/><label for='test".$index . "'></label>";
-										else 
-											echo "<input type='checkbox' id='test".$index ."' disabled/><label for='test".$index . "'></label>";
-									?>
-								</td>
-							</tr>	
-						<?php } ?>
-					<tbody>
-						
-					</tbody>
-					<?php endif?>				
-				</table>
+					
+					<form method="POST" class="form" action="./setting.php">
+						<div class="col-md-8 col-sm-8 col-8">
+							<div class="form-group">
+								<label>Select Views</label>
+				                <select class="selectpicker form-control select" id="views" name="view" required="">
+				                	<option hidden required>- None -</option>
+				                	<?php
+				                		foreach ($select_data->listviews as $row) {
+				                			if ($view == $row->resultsUrl)
+				                				echo "<option value='".$row->resultsUrl."' selected>".$row->label."</option>";
+				                			else 
+				                				echo "<option value='".$row->resultsUrl."'>".$row->label."</option>";
+				                		}
+				                	?>
+				                </select>
+							</div>
+						</div>
+						<div class="col-md-4 col-sm-4 col-4">
+							<div class="form-group">
+								<label>Stop / Start to sending Leads</label>
+								 <select class="form-control select" id="option">
+								 	<?php 
+								 		if ($option == 1)
+						                	echo "<option value='1' selected>Yes</option>
+						                	<option value='0'>No</option>";
+						                else
+						                	echo "<option value='1'>Yes</option>
+						                	<option value='0'  selected>No</option>";
+				                	?>
+				                </select>
+							</div>
+						</div>
+					</form>
+				</div>
 			</div>
 		</div>
-			<div class="loader hidden"></div>
+		<div  class="col-md-12 col-sm-6 col-6 col-offset-3 second">	
+			<table class="table table-striped" id="table">
+				<?php if (isset($table_data->records) && count($table_data->records)>0):?>
+				<thead>
+					<tr>
+						<th>_No</th>
+						<th>NAME</th>
+						<th>COMPANY</th>
+						<th>STATE/PROVINCE</th>
+						<th>EMAIL</th>
+						<th>LEAD STATUS</th>
+						<th>CREATED DATE</th>
+						<th>OWNER ALIAS</th>
+						<th>UNREAD BY OWNER</th>
+					</tr>
+				</thead>
+					<?php foreach ($table_data->records as $row) { $index++;?>
+						<tr>
+							<td><?= $index ?></td>
+							<td><?= $row->columns[0]->value ?></td>
+							<td><?= $row->columns[1]->value ?></td>
+							<td><?= $row->columns[2]->value ?></td>
+							<td><?= $row->columns[3]->value ?></td>
+							<td><?= $row->columns[4]->value ?></td>
+							<td><?= $row->columns[5]->value ?></td>
+							<td><?= $row->columns[6]->value ?></td>
+							<td>
+								<?php 
+									if ($row->columns[7]->value == 'true') 
+										echo "<input type='checkbox' id='test".$index ."' checked disabled/><label for='test".$index . "'></label>";
+									else 
+										echo "<input type='checkbox' id='test".$index ."' disabled/><label for='test".$index . "'></label>";
+								?>
+							</td>
+						</tr>	
+					<?php } ?>
+				<tbody>
+					
+				</tbody>
+				<?php endif?>				
+			</table>
 		</div>
+	</div>
+	<div class="loader hidden"></div>
+</div>
 
 </body>
 </html>

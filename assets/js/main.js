@@ -19,6 +19,19 @@
 				// request(current_view,2);
 				// setInterval( function(){request(current_view,2);},refreshRate*60*1000);
 			});
+
+			$('#option').change(function(){
+				var url = "./app/api.php?option=" + $('#option').val() + "&view=" + $('#views').val();
+				$.ajax({
+					url : url,
+					success : function(res){
+						
+					},
+					error : function(err){
+						
+					}
+				});
+			});
 	});
 	
 	function send_ourend(){

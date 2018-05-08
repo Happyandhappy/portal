@@ -20,17 +20,17 @@
 		return $con;
 	}
 
-	function getRefreshRate(){
+	function getOption($view){
 		$con = getConnection();
-		$query = "SELECT refreshRate from settings where username='" . $_SESSION['username']."'";
+		$query = "SELECT option from settings where view='" . $view."'";
 
 		$result = $con->query($query);
 		if ($result->num_rows > 0){
 			while ($row = $result->fetch_assoc()) {
-				return (int)$row['refreshRate'];
+				return $row['option'];
 			}
 		}
-		return 5;
+		return 0;
 	}
 	
 ?>
