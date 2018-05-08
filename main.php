@@ -30,7 +30,6 @@ if ( count($_POST) > 0 ) {
 	$view = $_POST['view'];
 	$table_data = $sale->getListViewDetail($view);
 	$option = getOption($view);
-	echo $option;
 	// get owner data
 	$owner_url = "/services/data/v42.0/queryAll/?q=select+LastName+,+FirstName+,+City+,+State+,+Country+,+PostalCode+,+StayInTouchNote+,+MobilePhone+,+Phone+from+User+where+Username+=+'".$_SESSION['username']."'";
 	$owner_data = $sale->getListViewDetail($owner_url);
