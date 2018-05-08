@@ -128,9 +128,11 @@
 				      + data['records'][i]['columns'][5]['value'] + "</td><td>"
 				      + data['records'][i]['columns'][6]['value'] + "</td><td>";
 			if (data['records'][i]['columns'][7]['value']==='true')	
-				     str = str + "<input type='checkbox' checked disabled>" + "</td></tr>";
+				     // str = str + "<input type='checkbox' checked disabled>" + "</td></tr>";
+				 	 str = str + "<input type='checkbox' id='test" + i + "' checked disabled/><label for='test" + i + "'></label>";
 			else 
-				     str = str + "<input type='checkbox' disabled>" + "</td></tr>";	
+				     // str = str + "<input type='checkbox' disabled>" + "</td></tr>";	
+				 str = str + "<input type='checkbox' id='test" + i + "' disabled/><label for='test" + i + "'></label>";
 			ownerId = data['records'][i]['columns'][11]['value'];
 		}
 		str = str + "</tbody>";

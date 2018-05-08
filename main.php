@@ -204,7 +204,8 @@ $index = 0;
 					</div>
 				</form>
 			</div>	
-			<div  class="col-md-12 col-sm-6 col-6 col-offset-3">	
+
+			<div  class="col-md-12 col-sm-6 col-6 col-offset-3 second">	
 				<table class="table table-striped" id="table">
 					<?php if (isset($table_data->records) && count($table_data->records)>0):?>
 					<thead>
@@ -233,9 +234,9 @@ $index = 0;
 								<td>
 									<?php 
 										if ($row->columns[7]->value == 'true') 
-											echo "<input type='checkbox' checked disabled>";
+											echo "<input type='checkbox' id='test".$index ."' checked disabled/><label for='test".$index . "'></label>";
 										else 
-											echo "<input type='checkbox' disabled>";
+											echo "<input type='checkbox' id='test".$index ."' disabled/><label for='test".$index . "'></label>";
 									?>
 								</td>
 							</tr>	
