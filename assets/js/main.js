@@ -6,18 +6,16 @@
 			current_view = $("#views").val();
 
 			console.log($('#option').val()==='1');
-			if(refreshRate >0)setInterval( function(){
-				request(current_view,2); 
-				if($('#option').val()==='1') send_ourend();
-			}, refreshRate*60*1000);
+			if(refreshRate >0){
+				getmappingData();
+				setInterval( function(){getmappingData();}, refreshRate*60*1000);
+			}
 
 			/* Change of view selector */
 			$("#views").change(function(){
 				current_view = $(this).val();
 				$("#table").html('');
 				$(".form").submit();
-				// request(current_view,2);
-				// setInterval( function(){request(current_view,2);},refreshRate*60*1000);
 			});
 
 			$('#option').change(function(){
@@ -34,95 +32,34 @@
 			});
 	});
 	
-	function send_ourend(){
-		var campaign = $('#campaign').val();
-		var subcampaign = $('#subcampaign').val();
-		var securityCode = $('#securityCode').val();
-		var groupId = $("#groupId").val();
-		var firstName = $('#firstName').val();
-		var lastName = $('#lastName').val();
-		var address = $('#address').val();
-		var city = $('#city').val();
-		var state = $('#state').val();
-		var zipcode = $('#zipcode').val();
-		var notes = $('#notes').val();
-		var phone = $('#phone').val();
-		var mobile = $('#mobile').val();
-
-		var url = "https://www.chasedatacorp.com/HttpImport/InjectLead.php?Campaign=" + campaign + "&Subcampaign=" + subcampaign +
-					"&GroupId=" + groupId + "&SecurityCode=" + securityCode + "&FirstName=" + firstName + "&LastName=" + lastName +
-					"&ClientId=1&Address=" + address + "&City=" + city + "&State=" + state + "&ZipCode=" + zipcode + "&Notes=" + notes +
-					"&PrimaryPhone=" + phone + "&adv_MobilePhone=" + mobile + "&DuplicatesCheck=2";
-		console.log(url);
-
-		$.ajax({
-			url : url,
-			success : function(res){
-				res = res.replace("<br>","");
-				res = res.replace("\n", "");
-				console.log(res);
-				if (res != "Result: OK") {
-					url = "https://www.chasedatacorp.com/HttpImport/UpdateLead.php?GroupId=" + groupId + "&SecurityCode=" + securityCode + 
-						  "&SearchField=Phone&Identifier=" + phone + "&FirstName=" + firstName +
-						  "&LastName=" + firstName + "&adv_MobilePhone=" + mobile + 
-						  "&Address="  + address   + "&State=" + state + 
-						  "&ZipCode="  + zipcode   + "&Notes=" + notes;
-					send_update(url);
-				}
-			},
-			error : function(err){
-
-			}
-		});
-
-	}
-
-	function send_update(url){
-		$.ajax({
-			 url : url,
-			 success : function(res){
-			 	console.log(res);
-			 },
-			 error: function(err){
-
-			 }
-		})
-	}
-
-	function request(url, view){
-	    // Show Spinner after loading
+	function getmappingData(){
+		var url = current_view ; 
 		$(".loader").removeClass("hidden");
 		$("#views").prop("disabled", true);
+
 		$.ajax({
-		  url: "./app/api.php?get=" + url,
-		  success: function(res){
-		  	 // Hide Spinner after loading
-		     $(".loader").addClass("hidden");
-
-		     listData = JSON.parse(res);
-		     // console.log(listData);
-
-		     // check if session expired or not
-		     if ( typeof listData[0]!== "undefined" && listData[0]){
-		     	if (listData[0]['errorCode'] == "INVALID_SESSION_ID") window.location.replace("./app/api.php?logout="); 				     	
-		     }
-
- 			 if (view===1) showSelect(listData);
-			 else if (view===2) showTable(listData);
-
-		     $("#views").prop("disabled", false);
-
-		  },
-		  error: function(err){
-		  	return err;
-		  }
+			url : "./app/api.php?get=" + url,
+			success : function(res){
+			    $(".loader").addClass("hidden");
+		     	listData = JSON.parse(res)['records'];
+				
+				var name 	= $('#name').val();
+				var company = $('#company').val();
+				var email 	= $('#email').val();
+				var lead_status = $('#lead_status').val();
+				var result  = [];
+				for ( var i = 0 ; i < listData.length ; i++){
+					if (listData[i]['columns'][0]['value'] === name && listData[i]['columns'][1]['value']===company && listData[i]['columns'][3]['value'] === email && listData[i]['columns'][4]['value'] === lead_status)
+						result.push(listData[i]);						
+				}
+				console.log(result);
+				showTable(result);
+				$("#views").prop("disabled", false);
+			},
+			error : function(err){
+				console.log(err);
+			}
 		});
-	}
-
-	function showSelect(data){
-		for (var i = 0 ; i < data['listviews'].length ; i++){
-			$('#views').append("<option value = '" + data['listviews'][i]['resultsUrl'] + "'>" + data['listviews'][i]['label'] + "</option>")
-		}
 	}
 
 	function showTable(data){
@@ -132,30 +69,85 @@
 		
 		var str = "<tbody>";		
 		var ownerId = "";		
-		for ( i = 0 ; i < data['records'].length ; i++){
-			str = str + "<tr><td>" + (i + 1) + "</td><td>" + data['records'][i]['columns'][0]['value'] + "</td><td>"
-				      + data['records'][i]['columns'][1]['value'] + "</td><td>"
-				      + data['records'][i]['columns'][2]['value'] + "</td><td>"
-				      + data['records'][i]['columns'][3]['value'] + "</td><td>"
-				      + data['records'][i]['columns'][4]['value'] + "</td><td>"
-				      + data['records'][i]['columns'][5]['value'] + "</td><td>"
-				      + data['records'][i]['columns'][6]['value'] + "</td><td>";
-			if (data['records'][i]['columns'][7]['value']==='true')	
-				     // str = str + "<input type='checkbox' checked disabled>" + "</td></tr>";
-				 	 str = str + "<input type='checkbox' id='test" + i + "' checked disabled/><label for='test" + i + "'></label>";
+		var data;
+		for ( i = 0 ; i < data.length ; i++){
+			str = str + "<tr><td>" + (i + 1) + "</td><td>" + data[i]['columns'][0]['value'] + "</td><td>"
+				      + data[i]['columns'][1]['value'] + "</td><td>"
+				      + data[i]['columns'][2]['value'] + "</td><td>"
+				      + data[i]['columns'][3]['value'] + "</td><td>"
+				      + data[i]['columns'][4]['value'] + "</td><td>"
+				      + data[i]['columns'][5]['value'] + "</td><td>"
+				      + data[i]['columns'][6]['value'] + "</td><td>";
+			if (data[i]['columns'][7]['value']==='true')	
+			 	 str = str + "<input type='checkbox' id='test" + i + "' checked disabled/><label for='test" + i + "'></label>";
 			else 
-				     // str = str + "<input type='checkbox' disabled>" + "</td></tr>";	
-				 str = str + "<input type='checkbox' id='test" + i + "' disabled/><label for='test" + i + "'></label>";
-			ownerId = data['records'][i]['columns'][11]['value'];
+			     str = str + "<input type='checkbox' id='test" + i + "' disabled/><label for='test" + i + "'></label>";
+			if ($('option')==='1')send(data[i]['columns'][8]['value']);
 		}
+
 		str = str + "</tbody>";
 		str = str.split("null").join("");
 		$("#table").append(str);
-		// console.log("ownerId" + ownerId);
-
-		// var url = "&ownerId=" + ownerId;
-		// request(url,3);	
 	}
 
+	function send(url){
+		url = "./app/api.php?get=/services/data/v42.0/sobjects/Lead/" + url;
+		var data;
+		$.ajax({
+			url : url,
+			success : function(res){
+				var listData = JSON.parse(res);
+				if ( typeof listData[0]!== "undefined" && listData[0]){
+			     	if (listData[0]['errorCode'] == "INVALID_SESSION_ID") window.location.replace("./app/api.php?logout="); 				     	
+			    }
 
-	
+				console.log(listData);
+				var campaign 	= $('#campaign').val();
+				var subcampaign = $('#subcampaign').val();
+				var securityCode = $('#securityCode').val();
+				var groupId 	= $("#groupId").val();
+				var firstName 	= listData['FirstName'];
+				var lastName  	= listData['LastName'];
+				var	address   	= listData['Street'] + " " + listData['City'] + ", " + listData['State'] + " " + listData['PostalCode'] + " " + listData['Country'];
+				var city 	  	= listData['City'];
+				var state 		= listData['State'];
+				var zipcode 	= listData['PostalCode'];
+				var notes 		= listData['Notes__c'];
+				var phone 		= listData['Phone'];
+				var mobile 		= listData['MobilePhone'];
+
+				url1 =  "https://www.chasedatacorp.com/HttpImport/InjectLead.php?Campaign=" + campaign + "&Subcampaign=" + subcampaign +
+						"&GroupId=" + groupId + "&SecurityCode=" + securityCode + "&FirstName=" + firstName + "&LastName=" + lastName +
+						"&ClientId=1&Address=" + address + "&City=" + city + "&State=" + state + "&ZipCode=" + zipcode + "&Notes=" + notes +
+						"&PrimaryPhone=" + phone + "&adv_MobilePhone=" + mobile + "&DuplicatesCheck=2";
+						console.log("--------------- Inject ----------------");
+						console.log(url1);
+				$.ajax({
+					url : url1,
+					success : function(res){
+						console.log(res);
+						if (res!="<br><br>Result: OK"){
+							url2 = url = "https://www.chasedatacorp.com/HttpImport/UpdateLead.php?GroupId=" + groupId + "&SecurityCode=" + securityCode + 
+								  "&SearchField=Phone&Identifier=" + phone + "&FirstName=" + firstName +
+								  "&LastName=" + firstName + "&adv_MobilePhone=" + mobile + 
+								  "&Address="  + address   + "&State=" + state + 
+								  "&ZipCode="  + zipcode   + "&Notes=" + notes;
+							console.log("--------------- Update ----------------");
+							console.log($url2);
+							$.ajax({
+								url : url2,
+								success : function(res){
+									console.log(res);
+								}
+							});
+						}
+					},	
+					error: function(err){
+						console.log(err);
+					}
+				});
+						  
+			},
+			error : function(err){}
+		});
+	}

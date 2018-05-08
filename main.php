@@ -25,102 +25,39 @@ if ( count($_POST) > 0 ) {
 	$securityCode 	= $_POST['securityCode'];
 	$groupId		= $_POST['groupId'];
 	$refreshRate	= $_POST['refreshRate'];
+	$name 			= $_POST['name'];
+	// $title			= $_POST['title'];
+	$company 		= $_POST['company'];
+	// $phone 			= $_POST['phone'];
+	// $mobile 		= $_POST['mobile'];
+	$email 			= $_POST['email'];
+	$lead_status    = $_POST['lead_status'];
 
 	// get view data
 	$view = $_POST['view'];
-	$table_data = $sale->getListViewDetail($view);
 	$option = getOption($view);
-	// get owner data
-	$owner_url = "/services/data/v42.0/queryAll/?q=select+LastName+,+FirstName+,+City+,+State+,+Country+,+PostalCode+,+StayInTouchNote+,+MobilePhone+,+Phone+from+User+where+Username+=+'".$_SESSION['username']."'";
-	$owner_data = $sale->getListViewDetail($owner_url);
-	$owner_data = $owner_data->records[0];
 
-	if (isset($owner_data->LastName)) $lastName = $owner_data->LastName;
-	else $lastName = "";
-
-	if (isset($owner_data->FirstName)) $firstName = $owner_data->FirstName;
-	else $firstName = "";
-
-	if (isset($owner_data->Address)) $address = $owner_data->Address->street . ", " . $owner_data->Address->state . ", " . $owner_data->Address->country;
-	else $address = "";
-
-	if (isset($owner_data->City)) $city = $owner_data->City;
-	else $city = "";
-
-	if (isset($owner_data->State)) $state = $owner_data->State;
-	else $state = "";
-
-	if (isset($owner_data->PostalCode)) $zipcode = $owner_data->PostalCode;
-	else $zipcode = "";
-
-	if (isset($owner_data->StayInTouchNote)) $notes = $owner_data->StayInTouchNote;
-	else $notes = "";
-
-	if(isset($owner_data->MobilePhone)) $mobile = $owner_data->MobilePhone;
-	else $mobile = "";
-
-	if (isset($owner_data->Phone)) $phone = $owner_data->Phone;
-	else $phone = "";
-
-	$ClientId = 1;
 	// save or update data to db 
 	$con = getConnection();
 
 	$query = "select * from settings where view='" . $_POST['view'] . "'";
 	$res = $con->query($query);
 	if ($res->num_rows>0){
-		$query = "UPDATE settings SET campaign = '".$campaign."', subcampaign='". $subcampaign . "' , securityCode='" . $securityCode. "', groupId='" . $groupId . "', refreshRate =" . $refreshRate . "', option =" . $option . ", firstName = '" . $firstName . "' , lastName = '" . $lastName . "' , address = '" .  $address . "' , city = '" . $city . "' , state = '" . $state . "' , zipcode = '" . $zipcode . "' , notes = '" . $notes . "', mobile = '" . $mobile . "', phone ='" . $phone . "' where view = '" . $_POST['view']."'";			
+		$query = "UPDATE settings SET campaign = '".$campaign."', subcampaign='". $subcampaign . "' , securityCode='" . $securityCode. "', groupId='" . $groupId . "', refreshRate =" . $refreshRate . ", option =" . $option . " where view = '" . $_POST['view']."'";			
 	}
 	else{
-		$query = "INSERT settings (username, campaign, subcampaign, securityCode, groupId, refreshRate, option, firstName, lastName, address, city, state, zipcode, notes, mobile, phone, view) VALUES ('".$_SESSION['username']. "','" . $campaign . "','" . $subcampaign . "','" . $securityCode . "','" . $groupId . "','" . $refreshRate . "','" . $firstName . "','" . $option . "','" . $lastName . "','" . $address. "','" . $city . "','" . $state . "','" . $zipcode . "','" . $notes . "','" . $mobile . "','" . $phone . "','" . $view  . "')";
+		$query = "INSERT settings (username, campaign, subcampaign, securityCode, groupId, refreshRate, option,  view) VALUES ('".$_SESSION['username']. "','" . $campaign . "','" . $subcampaign . "','" . $securityCode . "','" . $groupId . "','" . $refreshRate. "'," . $option . ",'" . $view  . "')";
 	}
 	$res = $con->query($query);
 
-	if ($option==1){
-		// update or inject curl requests here///////////////////////////////////////////////////////////////
-		$url = "https://www.chasedatacorp.com/HttpImport/InjectLead.php?Campaign=" . $campaign . 
-				"&Subcampaign=" . $subcampaign . 
-				"&GroupId=" . $groupId . 
-				"&SecurityCode=".$securityCode . 
-				"&FirstName=".$firstName . 
-				"&LastName=" . $lastName . 
-				"&ClientId=" . $ClientId . 
-				"&Address=" . $address . 
-				"&City=" . $city . 
-				"&State=" . $state . 
-				"&ZipCode=" . $zipcode . 
-				"&Notes=" . $notes . 
-				"&PrimaryPhone=" . $phone . 
-				"&adv_MobilePhone=" . $mobile."&DuplicatesCheck=2";
-
-		$ch = curl_init($url);
-		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		$res = curl_exec($ch);
-		curl_close($ch);
-		$res = str_replace("<br>", "", $res);
-		$res = str_replace("\n", "", $res);
-		// if Result is not Ok, then update data
-		if ($res != "Result: OK"){
-			$url = "https://www.chasedatacorp.com/HttpImport/UpdateLead.php?GroupId=" . $groupId . 
-					"&SecurityCode=" . $securityCode . 
-					"&SearchField=Phone&Identifier=" . $phone . 
-					"&FirstName=" . $firstName . 
-					"&LastName=" . $lastName . 
-					"&adv_MobilePhone=" . $mobile . 
-					"&Address=" . $address . 
-					"&State=" . $state . 
-					"&ZipCode=" . $zipcode . 
-					"&Notes=" . $notes;
-
-				$ch = curl_init($url);
-				curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-				$res = curl_exec($ch);
-				curl_close($ch);
-		}
+	$query = "select * from mapping where view='" . $_POST['view'] . "'";
+	$res = $con->query($query);
+	if($res->num_rows>0){
+		$query = "UPDATE mapping SET name='" . $name . "', company ='" . $company . "', email = '" . $email . "', lead_status = '" . $lead_status . "' where view='" . $_POST['view'] . "'";
+	}else{
+		$query = "INSERT mapping (view, name,  company,  email , lead_status) VALUES ('" .$view . "','" . $name . "','" . $company . "','" . $email . "','" . $lead_status ."')";
 	}
-
+	$res = $con->query($query);
 }
 
 // select views data
@@ -148,15 +85,10 @@ $index = 0;
 		<input type="hidden" id = "subcampaign" name="subcampaign" value="<?php echo $subcampaign ;?>">
 		<input type="hidden" id = "securityCode" name="securityCode" value="<?php echo $securityCode ;?>">
 		<input type="hidden" id = "groupId" name="groupId" value="<?php echo $groupId ;?>">
-		<input type="hidden" id = "firstName" name="firstName" value="<?php echo $firstName ;?>">
-		<input type="hidden" id = "lastName" name="lastName" value="<?php echo $lastName ;?>">
-		<input type="hidden" id = "address" name="update" value="<?php echo $address ;?>">
-		<input type="hidden" id = "city" name="city" value="<?php echo $city ;?>">
-		<input type="hidden" id = "state" name="state" value="<?php echo $state ;?>">
-		<input type="hidden" id = "zipcode" name="zipcode" value="<?php echo $zipcode ;?>">
-		<input type="hidden" id = "notes" name="notes" value="<?php echo $notes ;?>">
-		<input type="hidden" id = "phone" name="phone" value="<?php echo $phone ;?>">
-		<input type="hidden" id = "mobile" name="mobile" value="<?php echo $mobile ;?>">
+		<input type="hidden" id = "name" name="name" value="<?php echo $name; ?>">
+		<input type="hidden" id = "company" name="company" value="<?php echo $company; ?>">
+		<input type="hidden" id = "email" name="email" value="<?php echo $email; ?>">
+		<input type="hidden" id = "lead_status" name="lead_status" value="<?php echo $lead_status; ?>">
 	<?php } ?>
 	<nav class="navbar navbar-default">
 	  <div class="container-fluid">
@@ -228,50 +160,11 @@ $index = 0;
 			</div>
 		</div>
 		<div  class="col-md-12 col-sm-6 col-6 col-offset-3 second">	
-			<table class="table table-striped" id="table">
-				<?php if (isset($table_data->records) && count($table_data->records)>0):?>
-				<thead>
-					<tr>
-						<th>_No</th>
-						<th>NAME</th>
-						<th>COMPANY</th>
-						<th>STATE/PROVINCE</th>
-						<th>EMAIL</th>
-						<th>LEAD STATUS</th>
-						<th>CREATED DATE</th>
-						<th>OWNER ALIAS</th>
-						<th>UNREAD BY OWNER</th>
-					</tr>
-				</thead>
-					<?php foreach ($table_data->records as $row) { $index++;?>
-						<tr>
-							<td><?= $index ?></td>
-							<td><?= $row->columns[0]->value ?></td>
-							<td><?= $row->columns[1]->value ?></td>
-							<td><?= $row->columns[2]->value ?></td>
-							<td><?= $row->columns[3]->value ?></td>
-							<td><?= $row->columns[4]->value ?></td>
-							<td><?= $row->columns[5]->value ?></td>
-							<td><?= $row->columns[6]->value ?></td>
-							<td>
-								<?php 
-									if ($row->columns[7]->value == 'true') 
-										echo "<input type='checkbox' id='test".$index ."' checked disabled/><label for='test".$index . "'></label>";
-									else 
-										echo "<input type='checkbox' id='test".$index ."' disabled/><label for='test".$index . "'></label>";
-								?>
-							</td>
-						</tr>	
-					<?php } ?>
-				<tbody>
-					
-				</tbody>
-				<?php endif?>				
+			<table class="table table-striped" id="table">			
 			</table>
 		</div>
+		<div class="loader hidden"></div>
 	</div>
-	<div class="loader hidden"></div>
-</div>
 
 </body>
 </html>

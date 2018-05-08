@@ -80,7 +80,7 @@ if($result->num_rows>0){
 			<div class="modal-header">
 				<h3 class="modal-title" id="lineModalLabel"><i class="glyphicon glyphicon-cog"></i>  Settings</h3>
 			</div>
-			<form class="form" id = "form" method="POST" action="./main.php">
+			<form class="form" id = "form" method="POST" action="./mapping.php">
 				<div class="modal-body">
 	            <!-- content goes here -->
 	              <input type="hidden" name="view" id="view" value="<?php echo $_POST['view'] ?>">
@@ -105,9 +105,10 @@ if($result->num_rows>0){
 						<input type="number" name="refreshRate" id="refreshRate" class="form-control input" required value="<?= $data['refreshRate'] ?>">
 					</div>					
 				</div>
+
 				<div class="modal-footer">
 					<div class="form-group">
-						<input type="submit" name="submit" class="form-control" value="Submit">
+						<input type="submit" name="submit" class="form-control" value="Continue">
 						<div class="loader hidden"></div>
 					</div>
 				</div>
