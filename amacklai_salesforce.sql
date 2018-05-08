@@ -16,6 +16,23 @@ CREATE DATABASE /*!32312 IF NOT EXISTS*/`amacklai_salesforce` /*!40100 DEFAULT C
 
 USE `amacklai_salesforce`;
 
+/*Table structure for table `mapping` */
+
+DROP TABLE IF EXISTS `mapping`;
+
+CREATE TABLE `mapping` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `view` varchar(255) DEFAULT NULL,
+  `name` varchar(50) DEFAULT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `company` varchar(255) DEFAULT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `mobile` varchar(20) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `lead_status` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+
 /*Table structure for table `settings` */
 
 DROP TABLE IF EXISTS `settings`;
@@ -38,8 +55,9 @@ CREATE TABLE `settings` (
   `mobile` varchar(20) DEFAULT NULL,
   `phone` varchar(50) DEFAULT NULL,
   `view` varchar(255) DEFAULT NULL,
+  `option` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=latin1;
 
 /*Table structure for table `users` */
 
