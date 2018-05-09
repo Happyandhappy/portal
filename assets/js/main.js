@@ -121,6 +121,7 @@
 				var groupId 	= $("#groupId").val();
 				var firstName 	= listData['FirstName'];
 				var lastName  	= listData['LastName'];
+				var name 		= listData['Name'];
 				var	address   	= listData['Street'] + " " + listData['City'] + ", " + listData['State'] + " " + listData['PostalCode'] + " " + listData['Country'];
 				var city 	  	= listData['City'];
 				var state 		= listData['State'];
@@ -134,8 +135,8 @@
 
 				url1 =  "https://www.chasedatacorp.com/HttpImport/InjectLead.php?Campaign=" + campaign + "&Subcampaign=" + subcampaign +
 						"&GroupId=" + groupId + "&SecurityCode=" + securityCode 
-						+ "&" + _name + "=" + firstName 
-						+ "&LastName=" 	+ lastName 
+						+ "&" + _name + "=" + name 
+						// + "&LastName=" 	+ lastName 
 						+ "&Address=" 	+ address 
 						+ "&City=" 		+ city 
 						+ "&State=" 	+ state 
@@ -152,7 +153,8 @@
 					url : url1,
 					success : function(res){
 						console.log(res);
-						if (res!="<br><br>Result: OK"){
+						// if (res!="<br><br>Result: CURL error[500]: Duplicated phone number. Lead ignored."){
+						if (res!="<br><br>Result:  OK"){
 							url2 = url = "https://www.chasedatacorp.com/HttpImport/UpdateLead.php?GroupId=" + groupId 
 									+ "&SecurityCode=" 	+ securityCode 
 									+ "&Address="  		+ address   
@@ -160,8 +162,8 @@
 								  	+ "&ZipCode=" 		+ zipcode   
 								  	+ "&Notes=" 		+ notes
 									+ "&SearchField=Phone&Identifier=" + phone 
-									+ "&" + _name  + "=" + firstName 
-								  	+ "&LastName=" + lastName 
+									+ "&" + _name + "=" + name 
+								  	// + "&LastName=" + lastName 
 								  	+ "&" + _mobile + "=" + mobile 
 								  	+ "&" + _email  + "=" + email 
 									+ "&" + _company+ "=" + company
@@ -185,3 +187,8 @@
 			error : function(err){}
 		});
 	}
+
+
+// // https://www.chasedatacorp.com/HttpImport/InjectLead.php?GroupId=777&SecurityCode=D416ED4A9E45453292A0EC3872DA3081&DuplicatesCheck=2&Campaign=TEST&Subcampaign=HotLeads&FirstName=John&LastName=Smith&PrimaryPhone=9541231234&adv_MobilePhone=9543214321
+// https://www.chasedatacorp.com/HttpImport/UpdateLead.php?GroupId=777&SecurityCode=D416ED4A9E45453292A0EC3872DA3081&DuplicatesCheck=2&Campaign=111&Subcampaign=HotLeads&Name=John&LastName=Smith&SearchField=Phone&Identifier=9541231234&MobilePhone=9543214321&Notes=null&ZipCode=null&Address=null null, PA null USA
+// https://www.chasedatacorp.com/HttpImport/InjectLead.php?Campaign=111&Subcampaign=American Banking Corp.1&GroupId=777&SecurityCode=D416ED4A9E45453292A0EC3872DA3081&FirstName=Eugena Luce&Address=null null, MA null USA&City=null&State=MA&ZipCode=null&Notes=null&email=eluce@pacificretail.com&Company=Pacific Retail Group&Working - Contacted=Closed - Not Converted&PrimaryPhone=(781) 270-6510&MobilePhone=null&DuplicatesCheck=2
