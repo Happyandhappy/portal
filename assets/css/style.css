@@ -249,3 +249,16 @@ label{
   display: inherit;
   font-size: 14px;
 }
+
+.opt{
+  margin-top: 30px;
+}
+
+.start{
+  background-image: linear-gradient(to bottom,#337ab7 0,#265a88 100%);
+  color: white;
+}
+.stop{
+  background-image: linear-gradient(to bottom,#f44336 0,#ff1a18 100%);
+  color: white;
+}

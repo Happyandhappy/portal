@@ -1,5 +1,6 @@
 <?php
-session_start();	 
+session_start();	
+header("Access-Control-Allow-Origin: *"); 
 require_once('./config/database.php'); 
 require_once('./config/config.php');
 require_once('./app/Saleforce.php');
@@ -155,17 +156,12 @@ $index = 0;
 						</div>
 						<div class="col-md-4 col-sm-4 col-4">
 							<div class="form-group">
-								<label>Stop / Start to sending Leads</label>
-								 <select class="form-control select" id="option">
-								 	<?php 
-								 		if ($option == 1)
-						                	echo "<option value='1' selected>Yes</option>
-						                	<option value='0'>No</option>";
-						                else
-						                	echo "<option value='1'>Yes</option>
-						                	<option value='0'  selected>No</option>";
-				                	?>
-				                </select>
+								<?php
+									if ($option === 1)
+										echo '<input type="button" name="option" id="option" class="form-control opt start" value="Start">';
+									else
+										echo '<input type="button" name="option" id="option" class="form-control opt stop" value="Stop">';
+								?>
 							</div>
 						</div>
 					</form>

@@ -3,13 +3,26 @@
 	var index = 0;
 	var size = 0;
 	var refreshRate = 0;
+	var data;
+	var interval=null;
+	var opt = 0;
 	$(document).ready(function(){
 			refreshRate = $("#refreshRate").val();
 			current_view = $("#views").val();
-
+			if ($('#option').val() === 'Start'){
+				opt = 0;
+			}else{
+				opt = 1;
+			}
 			console.log($('#option').val()==='1');
-			if(refreshRate >0){
+			if (current_view !="- None -"){
 				getmappingData();
+			}
+			if(refreshRate >0 && current_view !="- None -"){
+				if (interval!= null) clearInterval(interval);
+				interval = setInterval(function(){
+					getmappingData();
+				}, refreshRate*60*1000);
 			}
 
 			/* Change of view selector */
@@ -19,8 +32,23 @@
 				$(".form").submit();
 			});
 
-			$('#option').change(function(){
-				var url = "./app/api.php?option=" + $('#option').val() + "&view=" + $('#views').val();
+			$('#option').click(function(){
+				opt = 0;
+				if ($('#option').val() === 'Start'){
+					opt = 1;
+					$('#option').val('Stop');
+					$('#option').removeClass('start');
+					$('#option').addClass('stop');
+				}
+				else {
+					opt = 0;
+					$('#option').val('Start');
+					$('#option').removeClass('stop');
+					$('#option').addClass('start');
+
+				}
+
+				var url = "./app/api.php?option=" + opt + "&view=" + $('#views').val();
 				$.ajax({
 					url : url,
 					success : function(res){
@@ -43,12 +71,12 @@
 			    $(".loader").addClass("hidden");
 		     	listData = JSON.parse(res)['records'];
 				
-				var result  = [];
+				data  = [];
 				for ( var i = 0 ; i < listData.length ; i++){
-						result.push(listData[i]);						
+						data.push(listData[i]);						
 				}
-				console.log(result);
-				showTable(result);
+				console.log(data);
+				showTable();
 				$("#views").prop("disabled", false);
 			},
 			error : function(err){
@@ -57,13 +85,24 @@
 		});
 	}
 
-	function showTable(data){
+	function showTable(){
+		size  = data.length;
+		if (size === 0) return;
 		var i;
 		$("#table").html('');
-	    $("#table").append("<thead><tr> <th>_No</th> <th>NAME</th> <th>COMPANY</th> <th>STATE/PROVINCE</th> <th>EMAIL</th>  <th>LEAD STATUS</th> <th>CREATED DATE</th> <th>OWNER ALIAS</th> <th>UNREAD BY OWNER</th> </tr></thead>");
+		var str = "<thead><th> _No </th>";
+		for ( i = 0 ; i < 8 ; i++){
+			str = str + "<th>" + data[0]['columns'][i]['fieldNameOrPath'] + "</th>";
+		}
+		if (data[0]['columns'][8]['fieldNameOrPath']!='Id')
+			str = str + "<th>" + data[0]['columns'][8]['fieldNameOrPath'] + "</th>";	
+
+		str = str + "</thead>";
+		$("#table").append(str);
+	    // $("#table").append("<thead><tr> <th>_No</th> <th>NAME</th> <th>COMPANY</th> <th>STATE/PROVINCE</th> <th>EMAIL</th>  <th>LEAD STATUS</th> <th>CREATED DATE</th> <th>OWNER ALIAS</th> <th>UNREAD BY OWNER</th> </tr></thead>");
 		
-		var str = "<tbody>";		
-		size  = data.length;
+		str = "<tbody>";		
+		
 		for ( i = 0 ; i < data.length ; i++){
 
 			str = str + "<tr><td>" + (i + 1) + "</td><td>" + data[i]['columns'][0]['value'] + "</td><td>"
@@ -72,32 +111,40 @@
 				      + data[i]['columns'][3]['value'] + "</td><td>"
 				      + data[i]['columns'][4]['value'] + "</td><td>"
 				      + data[i]['columns'][5]['value'] + "</td><td>"
-				      + data[i]['columns'][6]['value'] + "</td><td>";
-			if (data[i]['columns'][7]['value']==='true')	
-			 	 str = str + "<input type='checkbox' id='test" + i + "' checked disabled/><label for='test" + i + "'></label>";
-			else 
-			     str = str + "<input type='checkbox' id='test" + i + "' disabled/><label for='test" + i + "'></label>";
-			// if ($('#option').val()==='1')send(data[i]['columns'][8]['value']);
+				      + data[i]['columns'][6]['value'] + "</td>";
+			if (data[i]['columns'][8]['fieldNameOrPath']!='Id'){
+				str = str + "<td>" + data[i]['columns'][7]['value'] + "</td><td>";	
+				if (data[i]['columns'][8]['value']==='true')	
+			 	 	str = str + "<input type='checkbox' id='test" + i + "' checked disabled/><label for='test" + i + "'></label></td>";
+				else 
+			     	str = str + "<input type='checkbox' id='test" + i + "' disabled/><label for='test" + i + "'></label></td>";
+			}else{
+				if (data[i]['columns'][7]['value']==='true')	
+				 	 str = str + "<td><input type='checkbox' id='test" + i + "' checked disabled/><label for='test" + i + "'></label></td>";
+				else 
+				     str = str + "<td><input type='checkbox' id='test" + i + "' disabled/><label for='test" + i + "'></label></td>";				
+			}
+		      	 
+
 		}
 
 		str = str + "</tbody>";
 		str = str.split("null").join("");
 		$("#table").append(str);
-		
-		if ($('#option').val()==='1')send(data[index]['columns'][8]['value']);
-		console.log($('#option').val()==='1');
-		
-		setInterval( function(){
-			if ($('#option').val()==='1' && index < size)
-							send(data[index]['columns'][8]['value']);
-		}, refreshRate*60*1000);
+
+		index = 0;
+		if (opt===1) send();
 	}
 
-	function send(url){
-		index++;
+	function send(){
+		
 		if (index > size) return;
-		url = "./app/api.php?get=/services/data/v42.0/sobjects/Lead/" + url;
-		var data;
+		if (data[index]['columns'][8]['fieldNameOrPath'] === "Id"){
+				var url = "./app/api.php?get=/services/data/v42.0/sobjects/Lead/" + data[index]['columns'][8]['value'];
+		}else{
+				var url = "./app/api.php?get=/services/data/v42.0/sobjects/Lead/" + data[index]['columns'][9]['value'];
+		}
+
 		$.ajax({
 			url : url,
 			success : function(res){
@@ -133,7 +180,7 @@
 				var company 	= listData['Company'];
 				var lead_status = listData['Status'];
 
-				url1 =  "https://www.chasedatacorp.com/HttpImport/InjectLead.php?Campaign=" + campaign + "&Subcampaign=" + subcampaign +
+				url1 =  "http://api.chasedatacorp.com/HttpImport/InjectLead.php?Campaign=" + campaign + "&Subcampaign=" + subcampaign +
 						"&GroupId=" + groupId + "&SecurityCode=" + securityCode 
 						+ "&" + _name + "=" + name 
 						// + "&LastName=" 	+ lastName 
@@ -151,12 +198,12 @@
 						console.log(url1);
 				$.ajax({
 					url : url1,
-					headers: { 'Access-Control-Allow-Origin': '*' },
+					// method : "GET",
 					success : function(res){
 						console.log(res);
 						// if (res!="<br><br>Result: CURL error[500]: Duplicated phone number. Lead ignored."){
 						if (res!="<br><br>Result:  OK"){
-							url2 = url = "https://www.chasedatacorp.com/HttpImport/UpdateLead.php?GroupId=" + groupId 
+							url2 = url = "http://api.chasedatacorp.com/HttpImport/UpdateLead.php?GroupId=" + groupId 
 									+ "&SecurityCode=" 	+ securityCode 
 									+ "&Address="  		+ address   
 								  	+ "&State=" 		+ state 
@@ -170,14 +217,19 @@
 									+ "&" + _company+ "=" + company
 									+ "&" + _lead_status  + "=" + lead_status;
 							console.log("--------------- Update ----------------");
-							console.log($url2);
+							console.log(url2);
 							$.ajax({
 								url : url2,
-								headers: { 'Access-Control-Allow-Origin': '*' },
+								// method : "GET",
 								success : function(res){
 									console.log(res);
+									index++;
+									send();
 								}
 							});
+						} else {
+							index++;
+							send();
 						}
 					},	
 					error: function(err){
