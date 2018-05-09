@@ -13,7 +13,7 @@ if(!isset($_POST['view'])){
 }
 
 $con = getConnection();
-$query = "select * from settings where view='" . $_POST['view']."'";
+$query = "select * from settings where views='" . $_POST['view']."'";
 $result = $con->query($query);
 
 if($result->num_rows>0){

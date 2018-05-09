@@ -96,7 +96,7 @@
 	function send(url){
 		index++;
 		if (index > size) return;
-		url = "./app/api.php?get=/services/data/v42.0/sobjects/Lead/" + url;
+		url = "./app/api.php?get=/services/data/v42.0/sobjects/Lead/00Q1a0000035xOZEAY";   //+ url;
 		var data;
 		$.ajax({
 			url : url,
@@ -151,6 +151,7 @@
 						console.log(url1);
 				$.ajax({
 					url : url1,
+					headers: { 'Access-Control-Allow-Origin': '*' },
 					success : function(res){
 						console.log(res);
 						// if (res!="<br><br>Result: CURL error[500]: Duplicated phone number. Lead ignored."){
@@ -172,6 +173,7 @@
 							console.log($url2);
 							$.ajax({
 								url : url2,
+								headers: { 'Access-Control-Allow-Origin': '*' },
 								success : function(res){
 									console.log(res);
 								}

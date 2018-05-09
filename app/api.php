@@ -29,15 +29,15 @@ function getListData(){
 
 if (isset($_GET['option'])){
 	$con = getConnection();
-	$query = "select * from settings where view='" . $_GET['view'] . "'";
+	$query = "select * from settings where views='" . $_GET['view'] . "'";
 
 	$result = $con->query($query);
 	if($result->num_rows>0){
-		$query = "UPDATE settings SET option=" . $_GET['option'] . " where view='" . $_GET['view'] . "'";
+		$query = "UPDATE settings SET opt=" . $_GET['option'] . " where views='" . $_GET['view'] . "'";
 		$res = $con->query($query);
 		echo $query;
 	}else{
-		$query = "INSERT INTO settings (option) VALUES(" . $_GET['option'] . ")";
+		$query = "INSERT INTO settings (opt) VALUES(" . $_GET['option'] . ")";
 		$res = $con->query($query);
 		echo "success insert";
 	}

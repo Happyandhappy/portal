@@ -43,14 +43,16 @@ if ( count($_POST) > 0 ) {
 	$con = getConnection();
 
 	// save settings data to db
-	$query = "select * from settings where view='" . $_POST['view'] . "'";
+	$query = "select * from settings where views='" . $_POST['view'] . "'";
+	
 	$res = $con->query($query);
 	if ($res->num_rows>0){
-		$query = "UPDATE settings SET campaign = '".$campaign."', subcampaign='". $subcampaign . "' , securityCode='" . $securityCode. "', groupId='" . $groupId . "', refreshRate =" . $refreshRate . ", option =" . $option . " where view = '" . $_POST['view']."'";			
+		$query = "UPDATE settings SET campaign = '".$campaign."', subcampaign='". $subcampaign . "' , securityCode='" . $securityCode. "', groupId='" . $groupId . "', refreshRate =" . $refreshRate . ", opt =" . $option . " where views = '" . $_POST['view']."'";			
 	}
 	else{
-		$query = "INSERT settings (username, campaign, subcampaign, securityCode, groupId, refreshRate, option,  view) VALUES ('".$_SESSION['username']. "','" . $campaign . "','" . $subcampaign . "','" . $securityCode . "','" . $groupId . "','" . $refreshRate. "'," . $option . ",'" . $view  . "')";
+		$query = "INSERT settings (username, campaign, subcampaign, securityCode, groupId, refreshRate, opt,  views) VALUES ('".$_SESSION['username']. "','" . $campaign . "','" . $subcampaign . "','" . $securityCode . "','" . $groupId . "','" . $refreshRate. "'," . $option . ",'" . $view  . "')";
 	}
+	
 	$res = $con->query($query);
 
 	// save mapping data to db

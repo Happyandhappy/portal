@@ -22,12 +22,12 @@
 
 	function getOption($view){
 		$con = getConnection();
-		$query = "SELECT option from settings where view='" . $view."'";
+		$query = "SELECT opt from settings where views='" . $view."'";
 
 		$result = $con->query($query);
 		if ($result->num_rows > 0){
 			while ($row = $result->fetch_assoc()) {
-				return $row['option'];
+				return $row['opt'];
 			}
 		}
 		return 0;
