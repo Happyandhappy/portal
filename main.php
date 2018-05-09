@@ -20,26 +20,29 @@ $option = getOption($view);
 
 $data_result = array();
 if ( count($_POST) > 0 ) {
+	// settings data
 	$campaign 		= $_POST['campaign'];
 	$subcampaign 	= $_POST['subcampaign'];
 	$securityCode 	= $_POST['securityCode'];
 	$groupId		= $_POST['groupId'];
 	$refreshRate	= $_POST['refreshRate'];
+	// mapping data
 	$name 			= $_POST['name'];
 	// $title			= $_POST['title'];
 	$company 		= $_POST['company'];
-	// $phone 			= $_POST['phone'];
-	// $mobile 		= $_POST['mobile'];
+	$phone 			= $_POST['phone'];
+	$mobile 		= $_POST['mobile'];
 	$email 			= $_POST['email'];
 	$lead_status    = $_POST['lead_status'];
 
-	// get view data
+	// get option of current view
 	$view = $_POST['view'];
 	$option = getOption($view);
 
 	// save or update data to db 
 	$con = getConnection();
 
+	// save settings data to db
 	$query = "select * from settings where view='" . $_POST['view'] . "'";
 	$res = $con->query($query);
 	if ($res->num_rows>0){
@@ -50,12 +53,15 @@ if ( count($_POST) > 0 ) {
 	}
 	$res = $con->query($query);
 
+	// save mapping data to db
 	$query = "select * from mapping where view='" . $_POST['view'] . "'";
 	$res = $con->query($query);
 	if($res->num_rows>0){
-		$query = "UPDATE mapping SET name='" . $name . "', company ='" . $company . "', email = '" . $email . "', lead_status = '" . $lead_status . "' where view='" . $_POST['view'] . "'";
+		$query = "UPDATE mapping SET name='" . $name . "', company ='" . $company . "', email = '" . $email 
+		. "', phone = '" . $phone. "', mobile = '" . $mobile . "', lead_status = '" . $lead_status 
+		. "' where view='" . $_POST['view'] . "'";
 	}else{
-		$query = "INSERT mapping (view, name,  company,  email , lead_status) VALUES ('" .$view . "','" . $name . "','" . $company . "','" . $email . "','" . $lead_status ."')";
+		$query = "INSERT mapping (view, name,  company,  email, phone, mobile, lead_status) VALUES ('" .$view . "','" . $name . "','" . $company . "','" . $email . "','" . $phone . "','" . $mobile . "','" . $lead_status ."')";
 	}
 	$res = $con->query($query);
 }
@@ -80,15 +86,20 @@ $index = 0;
 </head>
 <body>
 	<?php	if ( count($_POST) > 0 ) {?>
+		<!--- Settings -->
 		<input type="hidden" id = "refreshRate" name="refreshRate" value="<?php echo $refreshRate;?>">
-		<input type="hidden" id = "campaign" name="campaign" value="<?php echo $campaign;?>">
+		<input type="hidden" id = "campaign" 	name="campaign" value="<?php echo $campaign;?>">
 		<input type="hidden" id = "subcampaign" name="subcampaign" value="<?php echo $subcampaign ;?>">
 		<input type="hidden" id = "securityCode" name="securityCode" value="<?php echo $securityCode ;?>">
-		<input type="hidden" id = "groupId" name="groupId" value="<?php echo $groupId ;?>">
-		<input type="hidden" id = "name" name="name" value="<?php echo $name; ?>">
+		<input type="hidden" id = "groupId" 	name="groupId" value="<?php echo $groupId ;?>">
+		<!--- Mapping -->
+		<input type="hidden" id = "name" 	name="name" value="<?php echo $name; ?>">
 		<input type="hidden" id = "company" name="company" value="<?php echo $company; ?>">
-		<input type="hidden" id = "email" name="email" value="<?php echo $email; ?>">
+		<input type="hidden" id = "email" 	name="email" value="<?php echo $email; ?>">
+		<input type="hidden" id = "phone" 	name="phone" value="<?php echo $phone; ?>">
+		<input type="hidden" id = "mobile" 	name="mobile" value="<?php echo $mobile; ?>">
 		<input type="hidden" id = "lead_status" name="lead_status" value="<?php echo $lead_status; ?>">
+
 	<?php } ?>
 	<nav class="navbar navbar-default">
 	  <div class="container-fluid">

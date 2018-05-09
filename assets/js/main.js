@@ -1,14 +1,15 @@
 	var listData = null;
 	var current_view = null;
-	
+	var index = 0;
+	var size = 0;
+	var refreshRate = 0;
 	$(document).ready(function(){
-			var refreshRate = $("#refreshRate").val();
+			refreshRate = $("#refreshRate").val();
 			current_view = $("#views").val();
 
 			console.log($('#option').val()==='1');
 			if(refreshRate >0){
 				getmappingData();
-				setInterval( function(){getmappingData();}, refreshRate*60*1000);
 			}
 
 			/* Change of view selector */
@@ -42,13 +43,8 @@
 			    $(".loader").addClass("hidden");
 		     	listData = JSON.parse(res)['records'];
 				
-				var name 	= $('#name').val();
-				var company = $('#company').val();
-				var email 	= $('#email').val();
-				var lead_status = $('#lead_status').val();
 				var result  = [];
 				for ( var i = 0 ; i < listData.length ; i++){
-					if (listData[i]['columns'][0]['value'] === name && listData[i]['columns'][1]['value']===company && listData[i]['columns'][3]['value'] === email && listData[i]['columns'][4]['value'] === lead_status)
 						result.push(listData[i]);						
 				}
 				console.log(result);
@@ -67,9 +63,9 @@
 	    $("#table").append("<thead><tr> <th>_No</th> <th>NAME</th> <th>COMPANY</th> <th>STATE/PROVINCE</th> <th>EMAIL</th>  <th>LEAD STATUS</th> <th>CREATED DATE</th> <th>OWNER ALIAS</th> <th>UNREAD BY OWNER</th> </tr></thead>");
 		
 		var str = "<tbody>";		
-		var ownerId = "";		
-		var data;
+		size  = data.length;
 		for ( i = 0 ; i < data.length ; i++){
+
 			str = str + "<tr><td>" + (i + 1) + "</td><td>" + data[i]['columns'][0]['value'] + "</td><td>"
 				      + data[i]['columns'][1]['value'] + "</td><td>"
 				      + data[i]['columns'][2]['value'] + "</td><td>"
@@ -81,15 +77,25 @@
 			 	 str = str + "<input type='checkbox' id='test" + i + "' checked disabled/><label for='test" + i + "'></label>";
 			else 
 			     str = str + "<input type='checkbox' id='test" + i + "' disabled/><label for='test" + i + "'></label>";
-			if ($('#option').val()==='1')send(data[i]['columns'][8]['value']);
+			// if ($('#option').val()==='1')send(data[i]['columns'][8]['value']);
 		}
 
 		str = str + "</tbody>";
 		str = str.split("null").join("");
 		$("#table").append(str);
+		
+		if ($('#option').val()==='1')send(data[index]['columns'][8]['value']);
+		console.log($('#option').val()==='1');
+		
+		setInterval( function(){
+			if ($('#option').val()==='1' && index < size)
+							send(data[index]['columns'][8]['value']);
+		}, refreshRate*60*1000);
 	}
 
 	function send(url){
+		index++;
+		if (index > size) return;
 		url = "./app/api.php?get=/services/data/v42.0/sobjects/Lead/" + url;
 		var data;
 		$.ajax({
@@ -101,6 +107,14 @@
 			    }
 
 				console.log(listData);
+				// get mapping fields
+				var _name 		= $('#name').val();
+				var _company 	= $('#company').val();
+				var _email 		= $('#email').val();
+				var _lead_status = $('#lead_status').val();
+				var _phone 		= $('#phone').val();
+				var _mobile 	= $('#mobile').val();
+				// get data to send	
 				var campaign 	= $('#campaign').val();
 				var subcampaign = $('#subcampaign').val();
 				var securityCode = $('#securityCode').val();
@@ -114,11 +128,24 @@
 				var notes 		= listData['Notes__c'];
 				var phone 		= listData['Phone'];
 				var mobile 		= listData['MobilePhone'];
+				var email 		= listData['Email'];
+				var company 	= listData['Company'];
+				var lead_status = listData['Status'];
 
 				url1 =  "https://www.chasedatacorp.com/HttpImport/InjectLead.php?Campaign=" + campaign + "&Subcampaign=" + subcampaign +
-						"&GroupId=" + groupId + "&SecurityCode=" + securityCode + "&FirstName=" + firstName + "&LastName=" + lastName +
-						"&ClientId=1&Address=" + address + "&City=" + city + "&State=" + state + "&ZipCode=" + zipcode + "&Notes=" + notes +
-						"&PrimaryPhone=" + phone + "&adv_MobilePhone=" + mobile + "&DuplicatesCheck=2";
+						"&GroupId=" + groupId + "&SecurityCode=" + securityCode 
+						+ "&" + _name + "=" + firstName 
+						+ "&LastName=" 	+ lastName 
+						+ "&Address=" 	+ address 
+						+ "&City=" 		+ city 
+						+ "&State=" 	+ state 
+						+ "&ZipCode=" 	+ zipcode 
+						+ "&Notes=" 	+ notes 
+						+ "&" + _email  + "=" + email 
+						+ "&" + _company+ "=" + company
+						+ "&" + _lead_status  + "=" + lead_status
+						+ "&" + _phone  + "=" + phone 
+						+ "&" + _mobile + "=" + mobile + "&DuplicatesCheck=2";
 						console.log("--------------- Inject ----------------");
 						console.log(url1);
 				$.ajax({
@@ -126,11 +153,19 @@
 					success : function(res){
 						console.log(res);
 						if (res!="<br><br>Result: OK"){
-							url2 = url = "https://www.chasedatacorp.com/HttpImport/UpdateLead.php?GroupId=" + groupId + "&SecurityCode=" + securityCode + 
-								  "&SearchField=Phone&Identifier=" + phone + "&FirstName=" + firstName +
-								  "&LastName=" + firstName + "&adv_MobilePhone=" + mobile + 
-								  "&Address="  + address   + "&State=" + state + 
-								  "&ZipCode="  + zipcode   + "&Notes=" + notes;
+							url2 = url = "https://www.chasedatacorp.com/HttpImport/UpdateLead.php?GroupId=" + groupId 
+									+ "&SecurityCode=" 	+ securityCode 
+									+ "&Address="  		+ address   
+								  	+ "&State=" 		+ state 
+								  	+ "&ZipCode=" 		+ zipcode   
+								  	+ "&Notes=" 		+ notes
+									+ "&SearchField=Phone&Identifier=" + phone 
+									+ "&" + _name  + "=" + firstName 
+								  	+ "&LastName=" + lastName 
+								  	+ "&" + _mobile + "=" + mobile 
+								  	+ "&" + _email  + "=" + email 
+									+ "&" + _company+ "=" + company
+									+ "&" + _lead_status  + "=" + lead_status;
 							console.log("--------------- Update ----------------");
 							console.log($url2);
 							$.ajax({
