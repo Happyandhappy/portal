@@ -96,7 +96,7 @@
 	function send(url){
 		index++;
 		if (index > size) return;
-		url = "./app/api.php?get=/services/data/v42.0/sobjects/Lead/00Q1a0000035xOZEAY";   //+ url;
+		url = "./app/api.php?get=/services/data/v42.0/sobjects/Lead/" + url;
 		var data;
 		$.ajax({
 			url : url,
