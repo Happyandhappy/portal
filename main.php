@@ -135,7 +135,7 @@ $index = 0;
 	<div class="container">
 		<div class="panel_body">
 			<div class="row">
-				<div class="col-md-6 col-md-offset-3 col-sm-6 col-sm-offset-3 col-6 col-offset-3">
+				<div class="col-md-8 col-md-offset-3 col-sm-8 col-sm-offset-3 col-8 col-offset-3 ">
 					<div class="row icon">
 						<div class="_logo">
 							<img src="./assets/logo1.png" style="height: 85px;"> <span style="font-size: 30px; top:50%;">&nbsp;&nbsp;+&nbsp;&nbsp;</span>
@@ -144,7 +144,7 @@ $index = 0;
 					</div>
 					
 					<form method="POST" class="form" action="./setting.php">
-						<div class="col-md-8 col-sm-8 col-8">
+						<div class="col-md-6 col-sm-6 col-6">
 							<div class="form-group">
 								<label>Select Views</label>
 				                <select class="selectpicker form-control select" id="views" name="view" required="">
@@ -160,7 +160,7 @@ $index = 0;
 				                </select>
 							</div>
 						</div>
-						<div class="col-md-4 col-sm-4 col-4">
+						<div class="col-md-3 col-sm-3 col-3">
 							<div class="form-group">
 								<?php
 									if ($option === 1)
@@ -168,6 +168,11 @@ $index = 0;
 									else
 										echo '<input type="button" name="option" id="option" class="form-control opt stop" value="Stop">';
 								?>
+							</div>
+						</div>
+						<div class="col-md-3 col-sm-3 col-3">
+							<div class="form-group">
+								<button class="btn btn-primary form-control opt" id="setting"><i class="glyphicon glyphicon-cog"></i>&nbsp;Setting </button>
 							</div>
 						</div>
 					</form>
@@ -178,7 +183,11 @@ $index = 0;
 			<table class="table table-striped" id="table">			
 			</table>
 		</div>
-		<div class="loader hidden"></div>
+		<div class="spinner hidden">
+			<div class="modal-backdrop fade in"></div>
+			<div class="loader">
+			</div>
+		</div>
 	</div>
 
 </body>

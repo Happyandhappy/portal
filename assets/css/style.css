@@ -262,3 +262,8 @@ label{
   background-image: linear-gradient(to bottom,#f44336 0,#ff1a18 100%);
   color: white;
 }
+
+.modal-body{
+  margin-bottom: 0px;
+  padding-bottom: 0px;
+}

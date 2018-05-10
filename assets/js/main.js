@@ -2,7 +2,7 @@
 	var index = 0;
 	var size = 0;
 	var refreshRate = 0;
-	var data;
+	var data=null;
 	var interval=null;
 	var opt = 0;
 	var id_index = 0;
@@ -18,32 +18,19 @@
 			
 			if (current_view !="- None -")	getmappingData();
 			
-			if(refreshRate >0 && current_view !="- None -"){
-				if (interval!= null) clearInterval(interval);
-				interval = setInterval(function(){ getmappingData();}, refreshRate*60*1000);
-			}
+			// if(refreshRate >0 && current_view !="- None -"){
+			// 	if (interval!= null) clearInterval(interval);
+			// 	interval = setInterval(function(){ getmappingData();}, refreshRate*60*1000);
+			// }
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 			/* Change of view selector */
 			$("#views").change(function(){
-				current_view = $(this).val();
-				$("#table").html('');
-				$(".loader").removeClass("hidden");
-
-				$.ajax({
-					url : "./app/api.php?get=" + current_view,
-					success : function(res){
-						var dt = JSON.parse(res);
-						console.log(dt);
-						$(".loader").addClass("hidden");
-						for (var i = 0 ; i < dt['columns'].length ; i++){
-							if (dt['columns'][i]['hidden'] === false){
-								$('.form').append("<input type='hidden' name='" + dt['columns'][i]['fieldNameOrPath'] + "' value='" + dt['columns'][i]['label'] + "'>");
-							}
-						}
-						$(".form").submit();						
-					}
-				});
+				goSetting();
 			});
+			$('#setting').click(function(e){
+				e.preventDefault();
+				goSetting();
+			})
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 			// set stop / start sending requests
 			$('#option').click(function(){
@@ -53,13 +40,13 @@
 					$('#option').val('Stop');
 					$('#option').removeClass('start');
 					$('#option').addClass('stop');
+					if ( data!=null && data['records'].length>0) send();
 				}
 				else {
 					opt = 0;
 					$('#option').val('Start');
 					$('#option').removeClass('stop');
 					$('#option').addClass('start');
-
 				}
 
 				$.ajax({
@@ -70,9 +57,30 @@
 			});
 	});
 	
+	function goSetting(){
+		current_view = $("#views").val();
+		if (current_view === "- None -") return; 
+		$(".spinner").removeClass("hidden");
+
+		$.ajax({
+			url : "./app/api.php?get=" + current_view,
+			success : function(res){
+				var dt = JSON.parse(res);
+				console.log(dt);
+				$(".spinner").addClass("hidden");
+				for (var i = 0 ; i < dt['columns'].length ; i++){
+					if (dt['columns'][i]['hidden'] === false){
+						$('.form').append("<input type='hidden' name='" + dt['columns'][i]['fieldNameOrPath'] + "' value='" + dt['columns'][i]['label'] + "'>");
+					}
+				}
+				$(".form").submit();						
+			}
+		});
+	}
+
 	function getmappingData(){
 		var url = current_view ; 
-		$(".loader").removeClass("hidden");
+		$(".spinner").removeClass("hidden");
 		$("#views").prop("disabled", true);
 		var sym = $('.custom');
 		
@@ -86,7 +94,7 @@
 		$.ajax({
 			url : "./app/api.php?get=" + url,
 			success : function(res){
-			    $(".loader").addClass("hidden");
+			    $(".spinner").addClass("hidden");
 		     	data = JSON.parse(res);
 
 				showTable();
@@ -102,7 +110,11 @@
 		console.log(data);
 		if (!isPhone)	alert("There is no phone field"); // alert show when phone field does not exist.
 		size  = data['records'].length;
-		if (size === 0) return;
+		if (size === 0) {
+			alert("There is no leads.");
+			setTimeout(getmappingData, 60*1000);
+			return;
+		}
 		var i,j=-1;
 		$("#table").html('');
 
@@ -145,12 +157,16 @@
 	}
 
 	function send(){
-		if (index > size) return;
+		if (index >= size) {
+			getmappingData();
+			return;
+		}
 		var campaign 	= $('#campaign').val();
 		var subcampaign = $('#subcampaign').val();
 		var securityCode = $('#securityCode').val();
 		var groupId 	= $("#groupId").val();
 		var _url = "";
+		console.log(index);
 		for (var i = 0 ; i < data['columns'].length ; i++){
 			if (data['columns'][i]['hidden']===false && checkSym(data['columns'][i]['fieldNameOrPath'])===true && data['records'][index]['columns'][i]['value']!=null){
 				_url = _url + "&" + $('#' + convertName(data['columns'][i]['fieldNameOrPath'])).val() + "=" + data['records'][index]['columns'][i]['value'];
@@ -175,10 +191,16 @@
 					console.log(url2);
 					$.ajax({
 						url : url2,
-						success : function(res){console.log(res); index++;send();
+						success : function(res){
+							console.log(res);
+							if ($('#option').val() === 'Stop'){
+								index++; send();						
+							}
 					}});
 				}else{
-					index++; send();
+					if ($('#option').val() === 'Stop'){
+						index++; send();						
+					}
 				}
 			}
 		});
