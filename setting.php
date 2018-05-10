@@ -12,6 +12,7 @@ if(!isset($_POST['view'])){
 	header("Location: ./main.php");exit;	
 }
 
+
 $con = getConnection();
 $query = "select * from settings where views='" . $_POST['view']."'";
 $result = $con->query($query);
@@ -81,6 +82,12 @@ if($result->num_rows>0){
 				<h3 class="modal-title" id="lineModalLabel"><i class="glyphicon glyphicon-cog"></i>  Settings</h3>
 			</div>
 			<form class="form" id = "form" method="POST" action="./mapping.php">
+				<?php
+					foreach ($_POST as $key => $value) {
+						echo "<input type='hidden' name='$key' value='$value'>";
+					}
+
+				?>
 				<div class="modal-body">
 	            <!-- content goes here -->
 	              <input type="hidden" name="view" id="view" value="<?php echo $_POST['view'] ?>">

@@ -12,35 +12,29 @@ if(!isset($_POST['view'])){
 	header("Location: ./main.php");exit;	
 }
 
+
 $con = getConnection();
-$query = "select * from mapping where view='" . $_POST['view']."'";
+$query = "select _keys, _values from mapping where views='" . $_POST['view']."'";
 $result = $con->query($query);
 
+$data = array();
 if($result->num_rows>0){
-	while ($row = $result->fetch_assoc()) {
-
-		$data = array(
-					"name" 			=> $row['name'],
-					// "title" 		=> $row['title'],
-					"company" 		=> $row['company'],
-					"phone"			=> $row['phone'],
-					"mobile"		=> $row['mobile'],
-					"email"			=> $row['email'],
-					"lead_status"	=> $row['lead_status'],
-				);
+	while ($row  = $result->fetch_assoc()) {
+		$_keys 	 = $row['_keys'];
+		$_values = $row['_values'];
+		$symbols = explode(';', $_keys);
+		$values  = explode(';', $_values);
+		for ($i = 0 ; $i<count($symbols) ; $i++){
+			$data[$symbols[$i]] = $values[$i];
+		}
 	}
 }else{
-	$data = array(
-					"name" 			=> "",
-					// "title" 		=> "",
-					"company" 		=> "",
-					"phone"			=> "",
-					"mobile"		=> "",
-					"email"			=> "",
-					"lead_status"	=> 1,
-				);
+	foreach ($_POST as $key => $value) {
+		if ($key=='view') continue;
+		if ($key=='campaign') break;
+		$data[$key] = "";
+	}
 }
-
 
 ?>
 
@@ -94,59 +88,15 @@ if($result->num_rows>0){
 
 					<div class="modal-body">
 		            <!-- content goes here -->
-		              <input type="hidden" name="view" id="view" value="<?php echo $_POST['view'] ?>">
-						<div class="form-group">
-							<label class="warning">Name</label>
-							<input type="text" name="name" id="name" class="form-control input" required value="<?= $data['name'] ?>">
-						</div>
-<!-- 						<div class="form-group">
-							<label class="warning">Title</label>
-							<input type="text" name="title" id="title" class="form-control input" value="<?= $data['title'] ?>">
-						</div> -->
-						<div class="form-group">
-							<label class="warning">Company</label>
-							<input type="text" name="company" id="company" class="form-control input" required value="<?= $data['company'] ?>">
-						</div>
-						<div class="form-group">
-							<label class="warning">Phone</label>
-							<input type="text" name="phone" id="phone" class="form-control input"  value="<?= $data['phone'] ?>">
-						</div>	
-						<div class="form-group">
-							<label class="warning">Mobile</label>
-							<input type="text" name="mobile" id="mobile" class="form-control input"  value="<?= $data['mobile'] ?>">
-						</div>	
-
-						<div class="form-group">
-							<label class="warning">Email</label>
-							<input type="text" name="email" id="email" class="form-control input" required value="<?= $data['email'] ?>">
-						</div>	
-
-						<div class="form-group">
-							<label class="warning">Lead Status</label>
-							<select name="lead_status" id="lead_status" class="form-control input">
-								<?php 
-									if ($data['lead_status']=='Open - Not Contacted')
-										echo "<option value='Open - Not Contacted' selected>Open - Not Contacted</option>";
-									else 
-										echo "<option value='Open - Not Contacted'>Open - Not Contacted</option>";
-									
-									if ($data['lead_status']=='Working - Contacted')
-										echo "<option value='Working - Contacted' selected>Working - Contacted</option>";
-									else
-										echo "<option value='Working - Contacted'>Working - Contacted</option>";
-
-									if ($data['lead_status']=='Closed - Converted')
-										echo "<option value='Closed - Converted' selected>Closed - Converted</option>";
-									else
-										echo "<option value='Closed - Converted'>Closed - Converted</option>";
-
-									if ($data['lead_status']=='Closed - Not Converted')
-										echo "<option value='Closed - Not Converted' selected>Closed - Not Converted</option>";
-									else
-										echo "<option value='Closed - Not Converted'>Closed - Not Converted</option>";
-								?>	
-							</select>
-						</div>	
+		              	<input type="hidden" name="view" id="view" value="<?php echo $_POST['view'] ?>">
+						<?php foreach ($_POST as $key => $value) {
+							if ($key=='view') continue;
+							if ($key=='campaign') break;
+							echo '<div class="form-group">
+									<label class="warning">' . $value . '</label>
+									<input type="text" name="' . $key . '" id="'. $key. '" class="form-control input" value="'. $data[$key] .'" required>
+									</div>';
+						} ?>
 					</div>
 
 					<div class="modal-footer">

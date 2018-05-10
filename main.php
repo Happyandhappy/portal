@@ -21,6 +21,7 @@ $option = getOption($view);
 
 $data_result = array();
 if ( count($_POST) > 0 ) {
+
 	// settings data
 	$campaign 		= $_POST['campaign'];
 	$subcampaign 	= $_POST['subcampaign'];
@@ -28,13 +29,18 @@ if ( count($_POST) > 0 ) {
 	$groupId		= $_POST['groupId'];
 	$refreshRate	= $_POST['refreshRate'];
 	// mapping data
-	$name 			= $_POST['name'];
-	// $title			= $_POST['title'];
-	$company 		= $_POST['company'];
-	$phone 			= $_POST['phone'];
-	$mobile 		= $_POST['mobile'];
-	$email 			= $_POST['email'];
-	$lead_status    = $_POST['lead_status'];
+	$i = 0;
+	$data = array();
+	$_keys = "";
+	$_values = "";
+	foreach ($_POST as $key => $value) {
+		$i++;
+		if ($i > 6 && $i < count($_POST)){
+			$data[$key] = $value;
+			$_keys = $_keys . $key . ";";
+			$_values = $_values . $value . ";";
+		}
+	}
 
 	// get option of current view
 	$view = $_POST['view'];
@@ -53,18 +59,17 @@ if ( count($_POST) > 0 ) {
 	else{
 		$query = "INSERT settings (username, campaign, subcampaign, securityCode, groupId, refreshRate, opt,  views) VALUES ('".$_SESSION['username']. "','" . $campaign . "','" . $subcampaign . "','" . $securityCode . "','" . $groupId . "','" . $refreshRate. "'," . $option . ",'" . $view  . "')";
 	}
-	
 	$res = $con->query($query);
 
+
 	// save mapping data to db
-	$query = "select * from mapping where view='" . $_POST['view'] . "'";
+
+	$query = "select * from mapping where views='" . $_POST['view'] . "'";
 	$res = $con->query($query);
 	if($res->num_rows>0){
-		$query = "UPDATE mapping SET name='" . $name . "', company ='" . $company . "', email = '" . $email 
-		. "', phone = '" . $phone. "', mobile = '" . $mobile . "', lead_status = '" . $lead_status 
-		. "' where view='" . $_POST['view'] . "'";
+		$query = "UPDATE mapping SET _keys='" . $_keys . "', _values ='" . $_values . "' where views='" . $_POST['view'] . "'";
 	}else{
-		$query = "INSERT mapping (view, name,  company,  email, phone, mobile, lead_status) VALUES ('" .$view . "','" . $name . "','" . $company . "','" . $email . "','" . $phone . "','" . $mobile . "','" . $lead_status ."')";
+		$query = "INSERT mapping (username, views, _keys,  _values) VALUES ('". $_SESSION['username'] . "','" .$view . "','" . $_keys . "','" . $_values."')";
 	}
 	$res = $con->query($query);
 }
@@ -96,14 +101,14 @@ $index = 0;
 		<input type="hidden" id = "securityCode" name="securityCode" value="<?php echo $securityCode ;?>">
 		<input type="hidden" id = "groupId" 	name="groupId" value="<?php echo $groupId ;?>">
 		<!--- Mapping -->
-		<input type="hidden" id = "name" 	name="name" value="<?php echo $name; ?>">
-		<input type="hidden" id = "company" name="company" value="<?php echo $company; ?>">
-		<input type="hidden" id = "email" 	name="email" value="<?php echo $email; ?>">
-		<input type="hidden" id = "phone" 	name="phone" value="<?php echo $phone; ?>">
-		<input type="hidden" id = "mobile" 	name="mobile" value="<?php echo $mobile; ?>">
-		<input type="hidden" id = "lead_status" name="lead_status" value="<?php echo $lead_status; ?>">
 
-	<?php } ?>
+	<?php 
+		$id = 0;
+		foreach ($data as $key => $value) {
+			echo "<input type='hidden' id = '$key' name = '$key' value='$value'>";
+			$id++;
+		}
+	} ?>
 	<nav class="navbar navbar-default">
 	  <div class="container-fluid">
 	    <div class="navbar-header">

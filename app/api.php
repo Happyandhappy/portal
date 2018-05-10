@@ -28,6 +28,7 @@ function getListData(){
 }
 
 if (isset($_GET['option'])){
+	if ($_GET['view']=='- None -') echo "cant insert"; return;
 	$con = getConnection();
 	$query = "select * from settings where views='" . $_GET['view'] . "'";
 

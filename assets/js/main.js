@@ -6,32 +6,44 @@
 	var data;
 	var interval=null;
 	var opt = 0;
+	var id_index = 0;
 	$(document).ready(function(){
 			refreshRate = $("#refreshRate").val();
 			current_view = $("#views").val();
-			if ($('#option').val() === 'Start'){
-				opt = 0;
-			}else{
-				opt = 1;
-			}
-			console.log($('#option').val()==='1');
-			if (current_view !="- None -"){
-				getmappingData();
-			}
+			
+			if ($('#option').val() === 'Start')	opt = 0;
+			else opt = 1;
+			
+			if (current_view !="- None -")	getmappingData();
+			
 			if(refreshRate >0 && current_view !="- None -"){
 				if (interval!= null) clearInterval(interval);
-				interval = setInterval(function(){
-					getmappingData();
-				}, refreshRate*60*1000);
+				interval = setInterval(function(){ getmappingData();}, refreshRate*60*1000);
 			}
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////
 			/* Change of view selector */
 			$("#views").change(function(){
 				current_view = $(this).val();
 				$("#table").html('');
-				$(".form").submit();
-			});
+				$(".loader").removeClass("hidden");
 
+				$.ajax({
+					url : "./app/api.php?get=" + current_view,
+					success : function(res){
+						var dt = JSON.parse(res);
+						console.log(dt);
+						$(".loader").addClass("hidden");
+						for (var i = 0 ; i < dt['columns'].length ; i++){
+							if (dt['columns'][i]['hidden'] === false){
+								$('.form').append("<input type='hidden' name='" + dt['columns'][i]['fieldNameOrPath'] + "' value='" + dt['columns'][i]['label'] + "'>");
+							}
+						}
+						$(".form").submit();						
+					}
+				});
+			});
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+			// set stop / start sending requests
 			$('#option').click(function(){
 				opt = 0;
 				if ($('#option').val() === 'Start'){
@@ -48,14 +60,10 @@
 
 				}
 
-				var url = "./app/api.php?option=" + opt + "&view=" + $('#views').val();
 				$.ajax({
-					url : url,
-					success : function(res){
-					},
-					error : function(err){
-						
-					}
+					url : "./app/api.php?option=" + opt + "&view=" + $('#views').val(),
+					success : function(res){},
+					error : function(err){}
 				});
 			});
 	});
@@ -69,13 +77,9 @@
 			url : "./app/api.php?get=" + url,
 			success : function(res){
 			    $(".loader").addClass("hidden");
-		     	listData = JSON.parse(res)['records'];
-				
-				data  = [];
-				for ( var i = 0 ; i < listData.length ; i++){
-						data.push(listData[i]);						
-				}
-				console.log(data);
+		     	data = JSON.parse(res);
+
+		
 				showTable();
 				$("#views").prop("disabled", false);
 			},
@@ -86,48 +90,35 @@
 	}
 
 	function showTable(){
-		size  = data.length;
+
+		console.log(data);
+		size  = data['records'].length;
 		if (size === 0) return;
 		var i;
 		$("#table").html('');
+
+		// add thead in table
 		var str = "<thead><th> _No </th>";
-		for ( i = 0 ; i < 8 ; i++){
-			str = str + "<th>" + data[0]['columns'][i]['fieldNameOrPath'] + "</th>";
+		for ( i = 0 ; i < data['columns'].length ; i++){
+			if (data['columns'][i]['hidden']===false)
+				str = str + "<th>" + data['columns'][i]['label'] + "</th>";
+			if (data['columns'][i]['fieldNameOrPath'] === 'Id') id_index = i;
 		}
-		if (data[0]['columns'][8]['fieldNameOrPath']!='Id')
-			str = str + "<th>" + data[0]['columns'][8]['fieldNameOrPath'] + "</th>";	
 
 		str = str + "</thead>";
 		$("#table").append(str);
-	    // $("#table").append("<thead><tr> <th>_No</th> <th>NAME</th> <th>COMPANY</th> <th>STATE/PROVINCE</th> <th>EMAIL</th>  <th>LEAD STATUS</th> <th>CREATED DATE</th> <th>OWNER ALIAS</th> <th>UNREAD BY OWNER</th> </tr></thead>");
-		
+	
+		// add tbody in table
 		str = "<tbody>";		
-		
-		for ( i = 0 ; i < data.length ; i++){
-
-			str = str + "<tr><td>" + (i + 1) + "</td><td>" + data[i]['columns'][0]['value'] + "</td><td>"
-				      + data[i]['columns'][1]['value'] + "</td><td>"
-				      + data[i]['columns'][2]['value'] + "</td><td>"
-				      + data[i]['columns'][3]['value'] + "</td><td>"
-				      + data[i]['columns'][4]['value'] + "</td><td>"
-				      + data[i]['columns'][5]['value'] + "</td><td>"
-				      + data[i]['columns'][6]['value'] + "</td>";
-			if (data[i]['columns'][8]['fieldNameOrPath']!='Id'){
-				str = str + "<td>" + data[i]['columns'][7]['value'] + "</td><td>";	
-				if (data[i]['columns'][8]['value']==='true')	
-			 	 	str = str + "<input type='checkbox' id='test" + i + "' checked disabled/><label for='test" + i + "'></label></td>";
-				else 
-			     	str = str + "<input type='checkbox' id='test" + i + "' disabled/><label for='test" + i + "'></label></td>";
-			}else{
-				if (data[i]['columns'][7]['value']==='true')	
-				 	 str = str + "<td><input type='checkbox' id='test" + i + "' checked disabled/><label for='test" + i + "'></label></td>";
-				else 
-				     str = str + "<td><input type='checkbox' id='test" + i + "' disabled/><label for='test" + i + "'></label></td>";				
+		for ( i = 0 ; i < data['records'].length ; i++){
+			str = str + "<tr><td>" + (i+1) + "</td>";
+			for ( var j = 0 ; j < data['columns'].length ; j++){
+				if (data['columns'][j]['hidden']===false){
+					str = str + "<td>" + data['records'][i]['columns'][j]['value'] + "</td>";
+				}
 			}
-		      	 
-
+			str = str + "</tr>";
 		}
-
 		str = str + "</tbody>";
 		str = str.split("null").join("");
 		$("#table").append(str);
@@ -137,14 +128,47 @@
 	}
 
 	function send(){
-		
 		if (index > size) return;
-		if (data[index]['columns'][8]['fieldNameOrPath'] === "Id"){
-				var url = "./app/api.php?get=/services/data/v42.0/sobjects/Lead/" + data[index]['columns'][8]['value'];
-		}else{
-				var url = "./app/api.php?get=/services/data/v42.0/sobjects/Lead/" + data[index]['columns'][9]['value'];
+		var campaign 	= $('#campaign').val();
+		var subcampaign = $('#subcampaign').val();
+		var securityCode = $('#securityCode').val();
+		var groupId 	= $("#groupId").val();
+		var _url = "";
+		for (var i = 0 ; i < data['columns'].length ; i++){
+			if (data['columns'][i]['hidden']===false){
+				_url = _url + "&" + $('#' + convertName(data['columns'][i]['fieldNameOrPath'])).val() + "=" + data['records'][index]['columns'][i]['value'];
+			}
 		}
+		url1 =  "http://api.chasedatacorp.com/HttpImport/InjectLead.php?Campaign=" + campaign + "&Subcampaign=" + subcampaign +
+						"&GroupId=" + groupId + "&SecurityCode=" + securityCode + _url + "&DuplicatesCheck=2";
+		console.log(url1);
+		
+		$.ajax({
+			url : url1,
+			success : function(res){
+				/// Test
+				index++; send();
 
+				if (res!="<br><br>Result:  OK"){
+					var url2 = "http://api.chasedatacorp.com/HttpImport/UpdateLead.php?Campaign=" + campaign
+					+ "&Subcampaign="   + subcampaign 
+					+ "&SecurityCode=" 	+ securityCode
+					+ "&GroupId=" 		+ groupId + _url
+					+ "&SearchField=Phone&Identifier=" + phone;
+					console.log("--------------- Update ----------------");
+					console.log(url2);
+					$.ajax({
+						url : url2,
+						success : function(res){console.log(res); index++;send();
+					}});
+				}else{
+					index++; send();
+				}
+			}
+		});
+
+/*
+		var url = "./app/api.php?get=/services/data/v42.0/sobjects/Lead/" + data['records'][index]['columns'][id_index]['value'];
 		$.ajax({
 			url : url,
 			success : function(res){
@@ -154,48 +178,25 @@
 			    }
 
 				console.log(listData);
-				// get mapping fields
-				var _name 		= $('#name').val();
-				var _company 	= $('#company').val();
-				var _email 		= $('#email').val();
-				var _lead_status = $('#lead_status').val();
-				var _phone 		= $('#phone').val();
-				var _mobile 	= $('#mobile').val();
 				// get data to send	
 				var campaign 	= $('#campaign').val();
 				var subcampaign = $('#subcampaign').val();
 				var securityCode = $('#securityCode').val();
 				var groupId 	= $("#groupId").val();
-				var firstName 	= listData['FirstName'];
-				var lastName  	= listData['LastName'];
-				var name 		= listData['Name'];
-				var	address   	= listData['Street'] + " " + listData['City'] + ", " + listData['State'] + " " + listData['PostalCode'] + " " + listData['Country'];
-				var city 	  	= listData['City'];
-				var state 		= listData['State'];
-				var zipcode 	= listData['PostalCode'];
-				var notes 		= listData['Notes__c'];
-				var phone 		= listData['Phone'];
-				var mobile 		= listData['MobilePhone'];
-				var email 		= listData['Email'];
-				var company 	= listData['Company'];
-				var lead_status = listData['Status'];
+				var url1 = "";
+				for (var i = 0 ; i < data['columns'].length ; i++){
+					if (data['columns'][i]['hidden']===false){
+						console.log( i + ":" + convertName(data['columns'][i]['fieldNameOrPath']) + ":" + listData[data['columns'][i]['fieldNameOrPath']])
+						url1 = url1 + "&" + $('#' + convertName(data['columns'][i]['fieldNameOrPath'])).val() + "=" + listData[data['columns'][i]['fieldNameOrPath']];
+					}
+				}
+
 
 				url1 =  "http://api.chasedatacorp.com/HttpImport/InjectLead.php?Campaign=" + campaign + "&Subcampaign=" + subcampaign +
-						"&GroupId=" + groupId + "&SecurityCode=" + securityCode 
-						+ "&" + _name + "=" + name 
-						// + "&LastName=" 	+ lastName 
-						+ "&Address=" 	+ address 
-						+ "&City=" 		+ city 
-						+ "&State=" 	+ state 
-						+ "&ZipCode=" 	+ zipcode 
-						+ "&Notes=" 	+ notes 
-						+ "&" + _email  + "=" + email 
-						+ "&" + _company+ "=" + company
-						+ "&" + _lead_status  + "=" + lead_status
-						+ "&" + _phone  + "=" + phone 
-						+ "&" + _mobile + "=" + mobile + "&DuplicatesCheck=2";
+						"&GroupId=" + groupId + "&SecurityCode=" + securityCode + url1;
 						console.log("--------------- Inject ----------------");
 						console.log(url1);
+
 				$.ajax({
 					url : url1,
 					// method : "GET",
@@ -239,9 +240,12 @@
 						  
 			},
 			error : function(err){}
-		});
+		});*/
 	}
 
+	function convertName(name){
+		return name.replace('.','_');
+	}
 
 // // https://www.chasedatacorp.com/HttpImport/InjectLead.php?GroupId=777&SecurityCode=D416ED4A9E45453292A0EC3872DA3081&DuplicatesCheck=2&Campaign=TEST&Subcampaign=HotLeads&FirstName=John&LastName=Smith&PrimaryPhone=9541231234&adv_MobilePhone=9543214321
 // https://www.chasedatacorp.com/HttpImport/UpdateLead.php?GroupId=777&SecurityCode=D416ED4A9E45453292A0EC3872DA3081&DuplicatesCheck=2&Campaign=111&Subcampaign=HotLeads&Name=John&LastName=Smith&SearchField=Phone&Identifier=9541231234&MobilePhone=9543214321&Notes=null&ZipCode=null&Address=null null, PA null USA
