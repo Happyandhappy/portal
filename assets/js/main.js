@@ -1,4 +1,3 @@
-	var listData = null;
 	var current_view = null;
 	var index = 0;
 	var size = 0;
@@ -7,6 +6,9 @@
 	var interval=null;
 	var opt = 0;
 	var id_index = 0;
+	var symbols = {};
+	var isPhone = false;
+	var phone = "";
 	$(document).ready(function(){
 			refreshRate = $("#refreshRate").val();
 			current_view = $("#views").val();
@@ -72,6 +74,14 @@
 		var url = current_view ; 
 		$(".loader").removeClass("hidden");
 		$("#views").prop("disabled", true);
+		var sym = $('.custom');
+		
+		for (var i = 0 ; i < sym.length ; i++){
+			if (sym[i].value!=""){
+				symbols[sym[i].name]=sym[i].value;
+				if (sym[i].name==="Phone") isPhone = true;   // check Phone field
+			}
+		}
 
 		$.ajax({
 			url : "./app/api.php?get=" + url,
@@ -79,7 +89,6 @@
 			    $(".loader").addClass("hidden");
 		     	data = JSON.parse(res);
 
-		
 				showTable();
 				$("#views").prop("disabled", false);
 			},
@@ -90,11 +99,11 @@
 	}
 
 	function showTable(){
-
 		console.log(data);
+		if (!isPhone)	alert("There is no phone field"); // alert show when phone field does not exist.
 		size  = data['records'].length;
 		if (size === 0) return;
-		var i;
+		var i,j=-1;
 		$("#table").html('');
 
 		// add thead in table
@@ -104,7 +113,7 @@
 				str = str + "<th>" + data['columns'][i]['label'] + "</th>";
 			if (data['columns'][i]['fieldNameOrPath'] === 'Id') id_index = i;
 		}
-
+	
 		str = str + "</thead>";
 		$("#table").append(str);
 	
@@ -124,7 +133,15 @@
 		$("#table").append(str);
 
 		index = 0;
-		if (opt===1) send();
+		if (opt===1 && isPhone) send();
+	}
+
+	function checkSym(ddt){
+		var result = false;
+		$.each(symbols, function(key, value) {
+			if (key===ddt)	result = true;
+		});
+		return result;
 	}
 
 	function send(){
@@ -135,8 +152,9 @@
 		var groupId 	= $("#groupId").val();
 		var _url = "";
 		for (var i = 0 ; i < data['columns'].length ; i++){
-			if (data['columns'][i]['hidden']===false){
+			if (data['columns'][i]['hidden']===false && checkSym(data['columns'][i]['fieldNameOrPath'])===true){
 				_url = _url + "&" + $('#' + convertName(data['columns'][i]['fieldNameOrPath'])).val() + "=" + data['records'][index]['columns'][i]['value'];
+				if (data['columns'][i]['fieldNameOrPath']==='Phone') phone = data['records'][index]['columns'][i]['value'];				
 			}
 		}
 		url1 =  "http://api.chasedatacorp.com/HttpImport/InjectLead.php?Campaign=" + campaign + "&Subcampaign=" + subcampaign +
@@ -146,8 +164,6 @@
 		$.ajax({
 			url : url1,
 			success : function(res){
-				/// Test
-				index++; send();
 
 				if (res!="<br><br>Result:  OK"){
 					var url2 = "http://api.chasedatacorp.com/HttpImport/UpdateLead.php?Campaign=" + campaign

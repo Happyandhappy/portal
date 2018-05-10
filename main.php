@@ -33,12 +33,14 @@ if ( count($_POST) > 0 ) {
 	$data = array();
 	$_keys = "";
 	$_values = "";
+	$_str = "";
 	foreach ($_POST as $key => $value) {
 		$i++;
 		if ($i > 6 && $i < count($_POST)){
 			$data[$key] = $value;
 			$_keys = $_keys . $key . ";";
 			$_values = $_values . $value . ";";
+			$_str = $_str . $key ."=&";
 		}
 	}
 
@@ -72,6 +74,7 @@ if ( count($_POST) > 0 ) {
 		$query = "INSERT mapping (username, views, _keys,  _values) VALUES ('". $_SESSION['username'] . "','" .$view . "','" . $_keys . "','" . $_values."')";
 	}
 	$res = $con->query($query);
+
 }
 
 // select views data
@@ -103,10 +106,8 @@ $index = 0;
 		<!--- Mapping -->
 
 	<?php 
-		$id = 0;
 		foreach ($data as $key => $value) {
-			echo "<input type='hidden' id = '$key' name = '$key' value='$value'>";
-			$id++;
+			echo "<input type='hidden' class='custom' id = '$key' name = '$key' value='$value'>";
 		}
 	} ?>
 	<nav class="navbar navbar-default">

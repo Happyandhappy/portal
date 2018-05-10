@@ -93,8 +93,8 @@ if($result->num_rows>0){
 							if ($key=='view') continue;
 							if ($key=='campaign') break;
 							echo '<div class="form-group">
-									<label class="warning">' . $value . '</label>
-									<input type="text" name="' . $key . '" id="'. $key. '" class="form-control input" value="'. $data[$key] .'" required>
+									<label>' . $value . '</label>
+									<input type="text" name="' . $key . '" id="'. $key. '" class="form-control input" value="'. $data[$key] .'">
 									</div>';
 						} ?>
 					</div>
