@@ -152,7 +152,7 @@
 		var groupId 	= $("#groupId").val();
 		var _url = "";
 		for (var i = 0 ; i < data['columns'].length ; i++){
-			if (data['columns'][i]['hidden']===false && checkSym(data['columns'][i]['fieldNameOrPath'])===true){
+			if (data['columns'][i]['hidden']===false && checkSym(data['columns'][i]['fieldNameOrPath'])===true && data['records'][index]['columns'][i]['value']!=null){
 				_url = _url + "&" + $('#' + convertName(data['columns'][i]['fieldNameOrPath'])).val() + "=" + data['records'][index]['columns'][i]['value'];
 				if (data['columns'][i]['fieldNameOrPath']==='Phone') phone = data['records'][index]['columns'][i]['value'];				
 			}
