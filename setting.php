@@ -25,7 +25,6 @@ if($result->num_rows>0){
 					"subcampaign" 	=> $row['subcampaign'],
 					"securityCode" 	=> $row['securityCode'],
 					"groupId"		=> $row['groupId'],
-					"refreshRate"	=> $row['refreshRate'],
 				);
 	}
 }else{
@@ -34,7 +33,6 @@ if($result->num_rows>0){
 					"subcampaign" 	=> "",
 					"securityCode" 	=> "",
 					"groupId"		=> "",
-					"refreshRate"	=> 5,
 				);
 }
 ?>
@@ -81,7 +79,7 @@ if($result->num_rows>0){
 			<div class="modal-header">
 				<h3 class="modal-title" id="lineModalLabel"><i class="glyphicon glyphicon-cog"></i>  Settings</h3>
 			</div>
-			<form class="form" id = "form" method="POST" action="./mapping.php">
+			<form class="" id = "form" method="POST" action="./mapping.php">
 				<?php
 					foreach ($_POST as $key => $value) {
 						echo "<input type='hidden' name='$key' value='$value'>";
@@ -106,11 +104,7 @@ if($result->num_rows>0){
 					<div class="form-group">
 						<label class="warning">GroupId</label>
 						<input type="text" name="groupId" id="gruopId" class="form-control input" required value="<?= $data['groupId'] ?>">
-					</div>	
-					<div class="form-group">
-						<label class="warning">Refresh Rate (min)</label>
-						<input type="number" name="refreshRate" id="refreshRate" class="form-control input" required value="<?= $data['refreshRate'] ?>">
-					</div>					
+					</div>						
 				</div>
 
 				<div class="modal-footer">

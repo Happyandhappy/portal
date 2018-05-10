@@ -78,13 +78,12 @@ if($result->num_rows>0){
 				<div class="modal-header">
 					<h3 class="modal-title" id="lineModalLabel"><i class="glyphicon glyphicon-send"></i>  Mapping Saleforce Fields</h3>
 				</div>
-				<form class="form" id = "form" method="POST" action="./main.php">
+				<form class="" id = "form" method="POST" action="./main.php">
 					<input type="hidden" name="view" 	 		value="<?= $_POST['view']?>">
 					<input type="hidden" name="campaign" 		value="<?= $_POST['campaign']?>">
 					<input type="hidden" name="subcampaign" 	value="<?= $_POST['subcampaign']?>">
 					<input type="hidden" name="securityCode" 	value="<?= $_POST['securityCode']?>">
 					<input type="hidden" name="groupId" 		value="<?= $_POST['groupId']?>">
-					<input type="hidden" name="refreshRate" 	value="<?= $_POST['refreshRate']?>">
 
 					<div class="modal-body">
 		            <!-- content goes here -->
@@ -92,10 +91,16 @@ if($result->num_rows>0){
 						<?php foreach ($_POST as $key => $value) {
 							if ($key=='view') continue;
 							if ($key=='campaign') break;
-							echo '<div class="form-group">
-									<label>' . $value . '</label>
-									<input type="text" name="' . $key . '" id="'. $key. '" class="form-control input" value="'. $data[$key] .'">
-									</div>';
+							if (isset($data[$key]))
+								echo '<div class="form-group">
+										<label>' . $value . '</label>
+										<input type="text" name="' . $key . '" id="'. $key. '" class="form-control input" value="'. $data[$key] .'">
+										</div>';
+							else 
+								echo '<div class="form-group">
+										<label>' . $value . '</label>
+										<input type="text" name="' . $key . '" id="'. $key. '" class="form-control input">
+										</div>';
 						} ?>
 					</div>
 

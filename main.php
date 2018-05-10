@@ -12,7 +12,6 @@ if(!isset($_SESSION['access_token']) || $_SESSION['access_token'] == "")
 	exit;
 }
 
-
 $sale = new Saleforce($_SESSION['access_token'], $_SESSION['instance_url']);
 
 $option = 0;
@@ -27,7 +26,6 @@ if ( count($_POST) > 0 ) {
 	$subcampaign 	= $_POST['subcampaign'];
 	$securityCode 	= $_POST['securityCode'];
 	$groupId		= $_POST['groupId'];
-	$refreshRate	= $_POST['refreshRate'];
 	// mapping data
 	$i = 0;
 	$data = array();
@@ -56,10 +54,10 @@ if ( count($_POST) > 0 ) {
 	
 	$res = $con->query($query);
 	if ($res->num_rows>0){
-		$query = "UPDATE settings SET campaign = '".$campaign."', subcampaign='". $subcampaign . "' , securityCode='" . $securityCode. "', groupId='" . $groupId . "', refreshRate =" . $refreshRate . ", opt =" . $option . " where views = '" . $_POST['view']."'";			
+		$query = "UPDATE settings SET campaign = '".$campaign."', subcampaign='". $subcampaign . "' , securityCode='" . $securityCode. "', groupId='" . $groupId . ", opt =" . $option . " where views = '" . $_POST['view']."'";			
 	}
 	else{
-		$query = "INSERT settings (username, campaign, subcampaign, securityCode, groupId, refreshRate, opt,  views) VALUES ('".$_SESSION['username']. "','" . $campaign . "','" . $subcampaign . "','" . $securityCode . "','" . $groupId . "','" . $refreshRate. "'," . $option . ",'" . $view  . "')";
+		$query = "INSERT settings (username, campaign, subcampaign, securityCode, groupId , opt,  views) VALUES ('".$_SESSION['username']. "','" . $campaign . "','" . $subcampaign . "','" . $securityCode . "','" . $groupId . "','". $option . ",'" . $view  . "')";
 	}
 	$res = $con->query($query);
 
