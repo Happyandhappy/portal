@@ -48,7 +48,7 @@
 					$('#option').removeClass('stop');
 					$('#option').addClass('start');
 				}
-
+				if ($('#views').val()=="- None -") return;
 				$.ajax({
 					url : "./app/api.php?option=" + opt + "&view=" + $('#views').val(),
 					success : function(res){},

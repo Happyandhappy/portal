@@ -161,7 +161,7 @@ $index = 0;
 						<div class="col-md-3 col-sm-3 col-3">
 							<div class="form-group">
 								<?php
-									if ($option === 1)
+									if ($option == 0)
 										echo '<input type="button" name="option" id="option" class="form-control opt start" value="Start">';
 									else
 										echo '<input type="button" name="option" id="option" class="form-control opt stop" value="Stop">';

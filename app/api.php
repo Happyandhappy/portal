@@ -10,11 +10,6 @@ require_once('./Saleforce.php');
 if (isset($_GET['logout'])) logout();
 if (isset($_GET['get']) && $_GET['get']!="") getListData();
 
-if (isset($_GET['ownerId'])){
-	$_SESSION['ownerId'] = $_GET['ownerId'];	
-	echo json_encode("success");
-} 
-
 function logout(){
 	session_destroy();
 	header("Location: ../index.php");
@@ -28,10 +23,9 @@ function getListData(){
 }
 
 if (isset($_GET['option'])){
-	if ($_GET['view']=='- None -') echo "cant insert"; return;
 	$con = getConnection();
 	$query = "select * from settings where views='" . $_GET['view'] . "'";
-
+	
 	$result = $con->query($query);
 	if($result->num_rows>0){
 		$query = "UPDATE settings SET opt=" . $_GET['option'] . " where views='" . $_GET['view'] . "'";
