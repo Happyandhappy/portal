@@ -21,7 +21,7 @@ $option = getOption($view);
 $data_result = array();
 if ( count($_POST) > 0 ) {
 
-	// settings data
+	// settings database
 	$campaign 		= $_POST['campaign'];
 	$subcampaign 	= $_POST['subcampaign'];
 	$securityCode 	= $_POST['securityCode'];
@@ -34,7 +34,7 @@ if ( count($_POST) > 0 ) {
 	$_str = "";
 	foreach ($_POST as $key => $value) {
 		$i++;
-		if ($i > 6 && $i < count($_POST)){
+		if ($i > 5 && $i < count($_POST)){
 			$data[$key] = $value;
 			$_keys = $_keys . $key . ";";
 			$_values = $_values . $value . ";";
@@ -54,23 +54,26 @@ if ( count($_POST) > 0 ) {
 	
 	$res = $con->query($query);
 	if ($res->num_rows>0){
-		$query = "UPDATE settings SET campaign = '".$campaign."', subcampaign='". $subcampaign . "' , securityCode='" . $securityCode. "', groupId='" . $groupId . ", opt =" . $option . " where views = '" . $_POST['view']."'";			
+		$query = "UPDATE settings SET campaign = '".$campaign."', subcampaign='". $subcampaign . "', opt =" . $option . " where views = '" . $_POST['view']."'";			
 	}
 	else{
-		$query = "INSERT settings (username, campaign, subcampaign, securityCode, groupId , opt,  views) VALUES ('".$_SESSION['username']. "','" . $campaign . "','" . $subcampaign . "','" . $securityCode . "','" . $groupId . "','". $option . ",'" . $view  . "')";
+		$query = "INSERT settings (username, campaign, subcampaign, opt,  views) VALUES ('".$_SESSION['username']. "','" . $campaign . "','" . $subcampaign . "',". $option . ",'" . $view  . "')";
 	}
 	$res = $con->query($query);
 
+	$query = "update users SET securityCode='" . $securityCode . "', groupId = '" . $groupId ."' where username='" . $_SESSION['username'] . "'";
+	$res = $con->query($query);
 
 	// save mapping data to db
 
-	$query = "select * from mapping where views='" . $_POST['view'] . "'";
+	$query = "select * from mapping where username='" . $_SESSION['username'] . "'";
 	$res = $con->query($query);
 	if($res->num_rows>0){
-		$query = "UPDATE mapping SET _keys='" . $_keys . "', _values ='" . $_values . "' where views='" . $_POST['view'] . "'";
+		$query = "UPDATE mapping SET _keys='" . $_keys . "', _values ='" . $_values . "' where username='" . $_SESSION['username'] . "'";
 	}else{
-		$query = "INSERT mapping (username, views, _keys,  _values) VALUES ('". $_SESSION['username'] . "','" .$view . "','" . $_keys . "','" . $_values."')";
+		$query = "INSERT mapping (username, _keys,  _values) VALUES ('". $_SESSION['username'] . "','" . $_keys . "','" . $_values."')";
 	}
+
 	$res = $con->query($query);
 
 }
@@ -190,3 +193,4 @@ $index = 0;
 
 </body>
 </html>
+

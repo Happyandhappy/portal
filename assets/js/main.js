@@ -87,6 +87,7 @@
 		for (var i = 0 ; i < sym.length ; i++){
 			if (sym[i].value!=""){
 				symbols[sym[i].name]=sym[i].value;
+				var a = sym[i].name;
 				if (sym[i].name==="Phone") isPhone = true;   // check Phone field
 			}
 		}
@@ -108,7 +109,7 @@
 
 	function showTable(){
 		console.log(data);
-		if (!isPhone)	alert("There is no phone field"); // alert show when phone field does not exist.
+		if (!isPhone)	alert("There is no phone field in mapping data"); // alert show when phone field does not exist.
 		size  = data['records'].length;
 		if (size === 0) {
 			alert("There is no leads.");

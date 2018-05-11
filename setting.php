@@ -12,29 +12,35 @@ if(!isset($_POST['view'])){
 	header("Location: ./main.php");exit;	
 }
 
-
 $con = getConnection();
 $query = "select * from settings where views='" . $_POST['view']."'";
 $result = $con->query($query);
 
+$data = array();
 if($result->num_rows>0){
 	while ($row = $result->fetch_assoc()) {
-
-		$data = array(
-					"campaign" 		=> $row['campaign'],
-					"subcampaign" 	=> $row['subcampaign'],
-					"securityCode" 	=> $row['securityCode'],
-					"groupId"		=> $row['groupId'],
-				);
+		$data['campaign'] = $row['campaign'];
+		$data['subcampaign'] = $row['subcampaign'];
 	}
 }else{
 	$data = array(
 					"campaign" 		=> "",
 					"subcampaign" 	=> "",
-					"securityCode" 	=> "",
-					"groupId"		=> "",
 				);
 }
+
+$query = "select securityCode, groupId from users where username='" . $_SESSION['username']."'";
+$result = $con->query($query);
+if($result->num_rows>0){
+	while ($row = $result->fetch_assoc()) {
+		$data['securityCode'] = $row['securityCode'];
+		$data['groupId']	  = $row['groupId'];
+	}
+}else{
+	$data['securityCode'] = "";
+	$data['groupId'] 	  = "";
+}
+
 ?>
 
 <!DOCTYPE html>

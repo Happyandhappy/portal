@@ -14,7 +14,7 @@ if(!isset($_POST['view'])){
 
 
 $con = getConnection();
-$query = "select _keys, _values from mapping where views='" . $_POST['view']."'";
+$query = "select _keys, _values from mapping where username='" . $_SESSION['username']."'";
 $result = $con->query($query);
 
 $data = array();
