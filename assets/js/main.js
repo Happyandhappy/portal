@@ -63,7 +63,7 @@
 		$(".spinner").removeClass("hidden");
 
 		$.ajax({
-			url : "./app/api.php?get=" + current_view,
+			url : "./app/api.php?get=" + current_view ,
 			success : function(res){
 				var dt = JSON.parse(res);
 				console.log(dt);
@@ -92,7 +92,7 @@
 		}
 
 		$.ajax({
-			url : "./app/api.php?get=" + url,
+			url : "./app/api.php?get=" + url + "?limit=2000",
 			success : function(res){
 			    $(".spinner").addClass("hidden");
 		     	data = JSON.parse(res);
