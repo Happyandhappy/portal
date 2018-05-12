@@ -93,8 +93,9 @@ if($result->num_rows>0){
 		            <!-- content goes here -->
 		              	<input type="hidden" name="view" id="view" value="<?php echo $_POST['view'] ?>">
 						<?php foreach ($_POST as $key => $value) {
-							if ($key=='view') continue;
-							if ($key=='campaign') break;
+							if ($key == 'view') continue;
+							if ($key == 'campaign') break;
+							if ($key == 'lastview') continue;
 							if (isset($data[$key]))
 								echo '<div class="form-group">
 										<label>' . $value . '</label>
