@@ -84,7 +84,7 @@ if($result->num_rows>0){
 			<div class="modal-header">
 				<h3 class="modal-title" id="lineModalLabel"><i class="glyphicon glyphicon-cog"></i>  Settings </h3>
 				<form action="./main.php" method="post"> 
-					<input type="hidden" name="view" value="<?php echo($_POST['view']) ?>">
+					<input type="hidden" name="view" value="<?php echo($_POST['lastview']) ?>">
 					<button class="close-thik"></button>
 				</form>
 			</div>

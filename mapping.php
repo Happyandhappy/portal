@@ -78,7 +78,7 @@ if($result->num_rows>0){
 				<div class="modal-header">
 					<h3 class="modal-title" id="lineModalLabel"><i class="glyphicon glyphicon-send"></i>  Mapping Saleforce Fields</h3>
 					<form action="./main.php" method="post"> 
-						<input type="hidden" name="view" value="<?php echo($_POST['view']) ?>">
+						<input type="hidden" name="view" value="<?php echo($_POST['lastview']) ?>">
 					<button class="close-thik"></button>
 				</form>
 				</div>
@@ -88,7 +88,7 @@ if($result->num_rows>0){
 					<input type="hidden" name="subcampaign" 	value="<?= $_POST['subcampaign']?>">
 					<input type="hidden" name="securityCode" 	value="<?= $_POST['securityCode']?>">
 					<input type="hidden" name="groupId" 		value="<?= $_POST['groupId']?>">
-
+					<input type="hidden" name="lastview" 		value="<?= $POST['lastview']?>">
 					<div class="modal-body">
 		            <!-- content goes here -->
 		              	<input type="hidden" name="view" id="view" value="<?php echo $_POST['view'] ?>">

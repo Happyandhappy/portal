@@ -185,6 +185,7 @@ $index = 0;
 					</div>
 					
 					<form method="POST" class="form" action="./setting.php">
+						<input type="hidden" name="lastview" value="<?= $view ?>">
 						<div class="col-md-6 col-sm-6 col-6">
 							<div class="form-group">
 								<label>Select Views</label>
