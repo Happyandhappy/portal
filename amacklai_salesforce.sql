@@ -22,16 +22,11 @@ DROP TABLE IF EXISTS `mapping`;
 
 CREATE TABLE `mapping` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
-  `view` varchar(255) DEFAULT NULL,
-  `name` varchar(50) DEFAULT NULL,
-  `title` varchar(255) DEFAULT NULL,
-  `company` varchar(255) DEFAULT NULL,
-  `phone` varchar(20) DEFAULT NULL,
-  `mobile` varchar(20) DEFAULT NULL,
-  `email` varchar(255) DEFAULT NULL,
-  `lead_status` varchar(255) DEFAULT NULL,
+  `username` varchar(255) DEFAULT NULL,
+  `_keys` varchar(1024) DEFAULT NULL,
+  `_values` varchar(1024) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=latin1;
 
 /*Table structure for table `settings` */
 
@@ -42,22 +37,10 @@ CREATE TABLE `settings` (
   `username` varchar(50) DEFAULT NULL,
   `campaign` varchar(255) DEFAULT NULL,
   `subcampaign` varchar(255) DEFAULT NULL,
-  `securityCode` varchar(255) DEFAULT NULL,
-  `groupId` varchar(50) DEFAULT NULL,
-  `refreshRate` int(10) DEFAULT NULL,
-  `firstName` varchar(50) DEFAULT NULL,
-  `lastName` varchar(50) DEFAULT NULL,
-  `address` varchar(255) DEFAULT NULL,
-  `city` varchar(50) DEFAULT NULL,
-  `state` varchar(50) DEFAULT NULL,
-  `zipcode` varchar(50) DEFAULT NULL,
-  `notes` varchar(255) DEFAULT NULL,
-  `mobile` varchar(20) DEFAULT NULL,
-  `phone` varchar(50) DEFAULT NULL,
-  `view` varchar(255) DEFAULT NULL,
-  `option` tinyint(1) DEFAULT NULL,
+  `views` varchar(255) DEFAULT NULL,
+  `opt` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=69 DEFAULT CHARSET=latin1;
 
 /*Table structure for table `users` */
 
@@ -68,8 +51,10 @@ CREATE TABLE `users` (
   `username` varchar(50) DEFAULT NULL,
   `password` varchar(255) DEFAULT NULL,
   `secret_token` varchar(255) DEFAULT NULL,
+  `securityCode` varchar(255) DEFAULT NULL,
+  `groupId` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

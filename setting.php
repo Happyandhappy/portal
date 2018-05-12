@@ -53,7 +53,6 @@ if($result->num_rows>0){
 	<link rel="stylesheet" href="./assets/css/style.css">	
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>	
-	<!-- <script src="./assets/js/setting.js"></script> -->
 </head>
 
 <body>
@@ -83,7 +82,11 @@ if($result->num_rows>0){
   <div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h3 class="modal-title" id="lineModalLabel"><i class="glyphicon glyphicon-cog"></i>  Settings</h3>
+				<h3 class="modal-title" id="lineModalLabel"><i class="glyphicon glyphicon-cog"></i>  Settings </h3>
+				<form action="./main.php" method="post"> 
+					<input type="hidden" name="view" value="<?php echo($_POST['view']) ?>">
+					<button class="close-thik"></button>
+				</form>
 			</div>
 			<form class="" id = "form" method="POST" action="./mapping.php">
 				<?php

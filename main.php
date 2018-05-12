@@ -16,66 +16,106 @@ $sale = new Saleforce($_SESSION['access_token'], $_SESSION['instance_url']);
 
 $option = 0;
 $view = "";
-$option = getOption($view);
+$option = 0;
+$con = getConnection();
 
 $data_result = array();
 if ( count($_POST) > 0 ) {
+	if (count($_POST)==1){
+		//user data from users table
+		$query = "select securityCode, groupId from users where username='" . $_SESSION['username'] . "'";
+		$result = $con->query($query);
+		if ($result->num_rows>0){
+			while ($row = $result->fetch_assoc()) {
+				$securityCode = $row['securityCode'];
+				$groupId = $row['groupId'];
+			}
+		}else{
+				$securityCode = "";
+				$groupId = "";
+		}
 
-	// settings database
-	$campaign 		= $_POST['campaign'];
-	$subcampaign 	= $_POST['subcampaign'];
-	$securityCode 	= $_POST['securityCode'];
-	$groupId		= $_POST['groupId'];
-	// mapping data
-	$i = 0;
-	$data = array();
-	$_keys = "";
-	$_values = "";
-	$_str = "";
-	foreach ($_POST as $key => $value) {
-		$i++;
-		if ($i > 5 && $i < count($_POST)){
-			$data[$key] = $value;
-			$_keys = $_keys . $key . ";";
-			$_values = $_values . $value . ";";
-			$_str = $_str . $key ."=&";
+		// setting data from settings table
+		$query = "select * from settings where views = '" . $_POST['view'] . "'";
+		$result = $con->query($query);
+		if ($result->num_rows>0){
+			while ($row = $result->fetch_assoc()) {
+				$campaign = $row['campaign'];
+				$subcampaign = $row['subcampaign'];
+				$view = $_POST['view'];
+			}
+		}
+		$option = getOption($_POST['view']);
+
+		// mapping data from mapping table
+		$query = "select * from mapping where username = '" . $_SESSION['username'] . "'";
+		$result = $con->query($query);
+		$data = array();
+		if ($result->num_rows>0){
+			while ($row = $result->fetch_assoc()) {
+				$_keys 	 = $row['_keys'];
+				$_values = $row['_values'];
+				$symbols = explode(';', $_keys);
+				$values  = explode(';', $_values);
+				for ($i = 0 ; $i<count($symbols) ; $i++){
+					$data[$symbols[$i]] = $values[$i];
+				}
+			}
 		}
 	}
-
-	// get option of current view
-	$view = $_POST['view'];
-	$option = getOption($view);
-
-	// save or update data to db 
-	$con = getConnection();
-
-	// save settings data to db
-	$query = "select * from settings where views='" . $_POST['view'] . "'";
-	
-	$res = $con->query($query);
-	if ($res->num_rows>0){
-		$query = "UPDATE settings SET campaign = '".$campaign."', subcampaign='". $subcampaign . "', opt =" . $option . " where views = '" . $_POST['view']."'";			
-	}
 	else{
-		$query = "INSERT settings (username, campaign, subcampaign, opt,  views) VALUES ('".$_SESSION['username']. "','" . $campaign . "','" . $subcampaign . "',". $option . ",'" . $view  . "')";
+		// settings database
+		$campaign 		= $_POST['campaign'];
+		$subcampaign 	= $_POST['subcampaign'];
+		$securityCode 	= $_POST['securityCode'];
+		$groupId		= $_POST['groupId'];
+		// mapping data
+		$i = 0;
+		$data = array();
+		$_keys = "";
+		$_values = "";
+		$_str = "";
+		foreach ($_POST as $key => $value) {
+			$i++;
+			if ($i > 5 && $i < count($_POST)){
+				$data[$key] = $value;
+				$_keys = $_keys . $key . ";";
+				$_values = $_values . $value . ";";
+				$_str = $_str . $key ."=&";
+			}
+		}
+
+		// get option of current view
+		$view = $_POST['view'];
+		$option = getOption($view);
+
+		// save settings data to db
+		$query = "select * from settings where views='" . $_POST['view'] . "'";
+		
+		$res = $con->query($query);
+		if ($res->num_rows>0){
+			$query = "UPDATE settings SET campaign = '".$campaign."', subcampaign='". $subcampaign . "', opt =" . $option . " where views = '" . $_POST['view']."'";			
+		}
+		else{
+			$query = "INSERT settings (username, campaign, subcampaign, opt,  views) VALUES ('".$_SESSION['username']. "','" . $campaign . "','" . $subcampaign . "',". $option . ",'" . $view  . "')";
+		}
+		$res = $con->query($query);
+
+		$query = "update users SET securityCode='" . $securityCode . "', groupId = '" . $groupId ."' where username='" . $_SESSION['username'] . "'";
+		$res = $con->query($query);
+
+		// save mapping data to db
+
+		$query = "select * from mapping where username='" . $_SESSION['username'] . "'";
+		$res = $con->query($query);
+		if($res->num_rows>0){
+			$query = "UPDATE mapping SET _keys='" . $_keys . "', _values ='" . $_values . "' where username='" . $_SESSION['username'] . "'";
+		}else{
+			$query = "INSERT mapping (username, _keys,  _values) VALUES ('". $_SESSION['username'] . "','" . $_keys . "','" . $_values."')";
+		}
+
+		$res = $con->query($query);
 	}
-	$res = $con->query($query);
-
-	$query = "update users SET securityCode='" . $securityCode . "', groupId = '" . $groupId ."' where username='" . $_SESSION['username'] . "'";
-	$res = $con->query($query);
-
-	// save mapping data to db
-
-	$query = "select * from mapping where username='" . $_SESSION['username'] . "'";
-	$res = $con->query($query);
-	if($res->num_rows>0){
-		$query = "UPDATE mapping SET _keys='" . $_keys . "', _values ='" . $_values . "' where username='" . $_SESSION['username'] . "'";
-	}else{
-		$query = "INSERT mapping (username, _keys,  _values) VALUES ('". $_SESSION['username'] . "','" . $_keys . "','" . $_values."')";
-	}
-
-	$res = $con->query($query);
-
 }
 
 // select views data

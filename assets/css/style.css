@@ -267,3 +267,28 @@ label{
   margin-bottom: 0px;
   padding-bottom: 0px;
 }
+
+
+
+[class*='close-'] {
+  border: none;
+  background: white;
+  font: 20px/100% arial, sans-serif;
+  position: absolute;
+  right: 10px;
+  text-decoration: none;
+  text-shadow: 0 1px 0 #fff;
+  top: 10px;
+}
+
+.close-classic:after {
+  content: 'X'; /* ANSI X letter */
+}
+
+.close-thin:after {
+  content: '×'; /* UTF-8 symbol */
+}
+
+.close-thik:after {
+  content: '✖'; /* UTF-8 symbol */
+}

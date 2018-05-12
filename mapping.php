@@ -77,6 +77,10 @@ if($result->num_rows>0){
 			<div class="modal-content">
 				<div class="modal-header">
 					<h3 class="modal-title" id="lineModalLabel"><i class="glyphicon glyphicon-send"></i>  Mapping Saleforce Fields</h3>
+					<form action="./main.php" method="post"> 
+						<input type="hidden" name="view" value="<?php echo($_POST['view']) ?>">
+					<button class="close-thik"></button>
+				</form>
 				</div>
 				<form class="" id = "form" method="POST" action="./main.php">
 					<input type="hidden" name="view" 	 		value="<?= $_POST['view']?>">
