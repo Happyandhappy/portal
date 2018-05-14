@@ -12,12 +12,14 @@ if(!isset($_POST['view'])){
 	header("Location: ./main.php");exit;	
 }
 
+if (!isset($_POST['lastview'])) $_POST['lastview'] ="";
 
 $con = getConnection();
 $query = "select _keys, _values from mapping where username='" . $_SESSION['username']."'";
 $result = $con->query($query);
 
 $data = array();
+$data['Id']="";
 if($result->num_rows>0){
 	while ($row  = $result->fetch_assoc()) {
 		$_keys 	 = $row['_keys'];
@@ -35,7 +37,6 @@ if($result->num_rows>0){
 		$data[$key] = "";
 	}
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -88,7 +89,7 @@ if($result->num_rows>0){
 					<input type="hidden" name="subcampaign" 	value="<?= $_POST['subcampaign']?>">
 					<input type="hidden" name="securityCode" 	value="<?= $_POST['securityCode']?>">
 					<input type="hidden" name="groupId" 		value="<?= $_POST['groupId']?>">
-					<input type="hidden" name="lastview" 		value="<?= $POST['lastview']?>">
+					<input type="hidden" name="lastview" 		value="<?= $_POST['lastview']?>">
 					<div class="modal-body">
 		            <!-- content goes here -->
 		              	<input type="hidden" name="view" id="view" value="<?php echo $_POST['view'] ?>">
@@ -107,6 +108,11 @@ if($result->num_rows>0){
 										<input type="text" name="' . $key . '" id="'. $key. '" class="form-control input">
 										</div>';
 						} ?>
+						<div class="form-group">
+							<label>ID</label>
+							<input type="text" name="Id" class="form-control input" value="<?= $data['Id']?>">							
+						</div>
+
 					</div>
 
 					<div class="modal-footer">

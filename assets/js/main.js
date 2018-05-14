@@ -36,11 +36,12 @@
 			$('#option').click(function(){
 				opt = 0;
 				if ($('#option').val() === 'Start'){
+					if (!isPhone) alert("There is no phone field in mapping data");
 					opt = 1;
 					$('#option').val('Stop');
 					$('#option').removeClass('start');
 					$('#option').addClass('stop');
-					if ( data!=null && data['records'].length>0) send();
+					if ( data!=null && data['records'].length>0 && isPhone) send();
 				}
 				else {
 					opt = 0;
@@ -162,6 +163,9 @@
 			getmappingData();
 			return;
 		}
+
+		console.log(symbols);
+
 		var campaign 	= $('#campaign').val();
 		var subcampaign = $('#subcampaign').val();
 		var securityCode = $('#securityCode').val();
@@ -174,6 +178,10 @@
 				if (data['columns'][i]['fieldNameOrPath']==='Phone') phone = data['records'][index]['columns'][i]['value'];				
 			}
 		}
+		if (checkSym("Id")){
+			_url = _url + "&" + $('#Id').val() + "=" + data['records'][index]['columns'][id_index]['value']; 
+		}
+
 		url1 =  "http://api.chasedatacorp.com/HttpImport/InjectLead.php?Campaign=" + campaign + "&Subcampaign=" + subcampaign +
 						"&GroupId=" + groupId + "&SecurityCode=" + securityCode + _url + "&DuplicatesCheck=2";
 		console.log(url1);

@@ -37,7 +37,6 @@ if (isset($_GET['option'])){
 		echo "success insert";
 	}
 }
-
 	// $url = $_SESSION['instance_url']."/services/data/v42.0/queryAll/?q=SELECT+name+from+Lead+where+Campaign+=+'Test'";
 	// $url = $_SESSION['instance_url']."/services/data/v42.0/queryAll/?q=SELECT+name+from+CampaignMember+where+CampaignId+=+'7011a000000SlNOAA0'";
 	// $url = $_SESSION['instance_url']."/services/data/v42.0/sobjects/CampaignMember/00v1a00000X631aAAB";
